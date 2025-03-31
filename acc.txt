@@ -1,0 +1,4 @@
+john_doe#password123#15#6#2000#08123456789#john@example.com#Chicago
+jane_smith#securepass#22#11#1998#08198765432#jane@example.com#Los Angeles
+alice_wonder#alice1234#5#9#2001#08122334455#alice@example.com#Chicago
+bob_builder#builder99#30#4#1995#08987654321#bob@example.com#Houston
