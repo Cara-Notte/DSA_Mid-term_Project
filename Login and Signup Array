@@ -29,16 +29,8 @@ void initializeQueue(Queue *q) {
     q->count = 0;
 }
 
-int isQueueFull(Queue *q) {
-    return q->count == 5;
-}
-
-int isQueueEmpty(Queue *q) {
-    return q->count == 0;
-}
-
 void enqueue(Queue *q, char username[], char city[]) {
-    if (isQueueFull(q)) {
+    if (q->count == 5) {
         q->front = (q->front + 1) % 5;
         q->count--;
     }
@@ -47,14 +39,6 @@ void enqueue(Queue *q, char username[], char city[]) {
     strcpy(q->history[q->rear].username, username);
     strcpy(q->history[q->rear].city, city);
     q->count++;
-
-    FILE *file = fopen("logs.txt", "a");
-    if (file) {
-        fprintf(file, "%s#%s\n", username, city);
-        fclose(file);
-    } else {
-        printf("Error saving login history!\n");
-    }
 }
 
 void deleteLoginHistory(Queue *q) {
@@ -62,17 +46,11 @@ void deleteLoginHistory(Queue *q) {
     q->rear = -1;
     q->count = 0;
 
-    FILE *file = fopen("logs.txt", "w");
-    if (file) {
-        fclose(file);
-        printf("Login history successfully deleted!\n\n");
-    } else {
-        printf("Error deleting login history!\n\n");
-    }
+    printf("Login history successfully deleted!\n");
 }
 
 void displayQueue(Queue *q) {
-    if (isQueueEmpty(q)) {
+    if (q->count == 0) {
         printf("No login history available.\n");
         return;
     }
@@ -87,26 +65,6 @@ void displayQueue(Queue *q) {
         printf("--------------------\n");
         i = (i + 1) % 5;
     }
-}
-
-void displayLoginHistoryFromFile() {
-    FILE *file = fopen("logs.txt", "r");
-    if (!file) {
-        printf("No previous login history found.\n");
-        return;
-    }
-
-    char username[50], city[50];
-    printf("===================================\n");
-    printf("           Login History          \n");
-    printf("===================================\n");
-    while (fscanf(file, "%[^#]#%[^\n]\n", username, city) != EOF) {
-        printf("Username: %s\n", username);
-        printf("City    : %s\n", city);
-        printf("--------------------\n");
-    }
-
-    fclose(file);
 }
 
 void modifyAccount(Account accounts[], int jumlahData, char user[]) {
@@ -307,7 +265,7 @@ int main(){
 
                             for (int i = 0; i < jumlahData; i++) {
                                 if (strcmp(temp, accounts[i].username) == 0) {
-                                    printf("\nSorry, Username has been used, please pick a different username!\n");
+                                    printf("Sorry, Username has been used, please pick a different username!\n");
                                     isDuplicate = 1;
                                     break;
                                 }
@@ -391,7 +349,7 @@ int main(){
 
                         fclose(signUp);
                         jumlahData++;
-                        printf("===================================\n");
+                        printf("===================================\n\n");
                         break;
                     }
                 } else {
@@ -413,7 +371,6 @@ int main(){
                 } else {
                     if (picks == 3){
                         deleteLoginHistory(&loginQueue);
-                        displayLoginHistoryFromFile();
                     } else {
                         if (picks == 4){
                             int found = 0, index;
