@@ -1,0 +1,652 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef enum {
+    bench = 1, crunches, curls, deadlift, legPresses, pullUps, squat,
+    benchPR, crunchesPR, curlsPR, deadliftPR, legPressesPR, pullUpsPR, squatPR
+} ExerciseType;
+
+typedef struct Workout {
+    ExerciseType exercise;
+    int sets;
+    int reps;
+    float weight;
+} Workout;
+
+typedef struct PR {
+    ExerciseType exercise;
+    float maxWeight;
+    int maxSets;
+    int maxReps;
+} PR;
+
+typedef struct WorkoutQueue {
+    ExerciseType items[50];
+    int front, rear;
+} WorkoutQueue;
+
+typedef struct WorkoutHistory {
+    Workout items[100];
+    int top;
+} WorkoutHistory;
+
+typedef struct account {
+    char username[50];
+    char password[17];
+    int day;
+    int month;
+    int year;
+    char phoneNum[15];
+    char email[20];
+    char city[50];
+
+    WorkoutQueue plannedWorkouts;
+    WorkoutHistory completedWorkouts;
+    PR personalRecords[7];
+} Account;
+
+typedef struct loginHistory {
+    char username[50];
+    char city[50];
+} LoginHistory;
+
+typedef struct queue {
+    LoginHistory history[5];
+    int front, rear, count;
+} Queue;
+
+void initializeQueue(Queue *q) {
+    q->front = 0;
+    q->rear = -1;
+    q->count = 0;
+}
+
+void enqueue(Queue *q, char username[], char city[]) {
+    if (q->count == 5) {
+        q->front = (q->front + 1) % 5;
+        q->count--;
+    }
+    q->rear = (q->rear + 1) % 5;
+    strcpy(q->history[q->rear].username, username);
+    strcpy(q->history[q->rear].city, city);
+    q->count++;
+}
+
+void deleteLoginHistory(Queue *q) {
+    q->front = 0;
+    q->rear = -1;
+    q->count = 0;
+
+    printf("Login history successfully deleted!\n");
+}
+
+void displayQueue(Queue *q) {
+    if (q->count == 0) {
+        printf("No login history available.\n");
+        return;
+    }
+    printf("===================================\n");
+    printf("           Login History          \n");
+    printf("===================================\n");
+    int i = q->front;
+    for (int j = 0; j < q->count; j++) {
+        printf("Username: %s\n", q->history[i].username);
+        printf("City    : %s\n", q->history[i].city);
+        printf("--------------------\n");
+        i = (i + 1) % 5;
+    }
+}
+
+void modifyAccount(Account accounts[], int jumlahData, char user[]) {
+    int index = -1;
+
+    for (int i = 0; i < jumlahData; i++) {
+        if (strcmp(accounts[i].username, user) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        printf("Error: Account not found!\n");
+        return;
+    }
+
+    int choice;
+    printf("\n============= Modify Account Details ===============\n");
+    printf("1. Change Password\n");
+    printf("2. Change Birthdate\n");
+    printf("3. Change Phone Number\n");
+    printf("4. Change Email\n");
+    printf("5. Change City\n");
+    printf("6. Cancel\n");
+    while (1) {
+        printf("Choose an option: ");
+        if (scanf("%d", &choice) == 1) {
+            break;
+        } else {
+            printf("Invalid input! Please enter a valid number.\n");
+            while (getchar() != '\n');
+        }
+    }
+
+    switch (choice) {
+        case 1:
+            printf("Enter new password: ");
+            scanf("%s", accounts[index].password);
+            break;
+        case 2:
+            printf("Enter new birthdate (DD MM YYYY): ");
+            scanf("%d %d %d", &accounts[index].day, &accounts[index].month, &accounts[index].year);
+            break;
+        case 3:
+            printf("Enter new phone number: ");
+            scanf("%s", accounts[index].phoneNum);
+            break;
+        case 4:
+            printf("Enter new email: ");
+            scanf("%s", accounts[index].email);
+            break;
+        case 5:
+            printf("Enter new city: ");
+            scanf("%s", accounts[index].city);
+            break;
+        case 6:
+            printf("Modification canceled.\n");
+            return;
+        default:
+            printf("Invalid choice!\n");
+            return;
+    }
+
+    FILE *file = fopen("acc.txt", "w");
+    if (!file) {
+        printf("Error: Unable to update account file!\n");
+        return;
+    }
+
+    for (int i = 0; i < jumlahData; i++) {
+        fprintf(file, "%s#%s#%d#%d#%d#%s#%s#%s\n", accounts[i].username, accounts[i].password, accounts[i].day, accounts[i].month, accounts[i].year, accounts[i].phoneNum, accounts[i].email, accounts[i].city);
+    }
+    fclose(file);
+
+    printf("Account details successfully updated!\n");
+}
+
+void initWorkoutQueue(WorkoutQueue *q) {
+    q->front = -1;
+    q->rear = -1;
+}
+
+void enqueueWorkout(WorkoutQueue *q, ExerciseType ex) {
+    if ((q->rear + 1) % 50 == q->front) {
+        return;
+    }
+    if (q->front == -1) {
+        q->front = 0;
+    }
+    q->rear = (q->rear + 1) % 50;
+    q->items[q->rear] = ex;
+}
+
+ExerciseType dequeueWorkout(WorkoutQueue *q) {
+    if (q->front == -1) {
+        return -1;
+    }
+    int ex = q->items[q->front];
+    if (q->front == q->rear) {
+        q->front = q->rear = -1;
+    } else {
+        q->front = (q->front + 1) % 50;
+    }
+    return ex;
+}
+
+void initWorkoutHistory(WorkoutHistory *h) {
+    h->top = -1;
+}
+
+void addWorkout(WorkoutHistory *h, Workout w) {
+    if (h->top == 99) {
+        return;
+    }
+    h->items[++h->top] = w;
+}
+
+void updatePR(Account *acc, Workout w) {
+    if(w.exercise >= 8 && w.exercise <= 14){
+        int prIndex = w.exercise - 7;
+        if (prIndex >= 0 && prIndex < 7) {
+            if(w.weight > acc->personalRecords[prIndex].maxWeight || (w.weight == acc->personalRecords[prIndex].maxWeight && w.sets > acc->personalRecords[prIndex].maxSets) || (w.weight == acc->personalRecords[prIndex].maxWeight && w.sets == acc->personalRecords[prIndex].maxSets && w.reps > acc->personalRecords[prIndex].maxReps)){
+                acc->personalRecords[prIndex].maxWeight = w.weight;
+                acc->personalRecords[prIndex].maxSets = w.sets;
+                acc->personalRecords[prIndex].maxReps = w.reps;
+            }
+        }
+    }
+}
+
+void saveAccounts(Account accounts[], int count) {
+    FILE *file = fopen("acc.txt", "w");
+    if (!file) return;
+
+    for (int i = 0; i < count; i++) {
+        fprintf(file, "%s#%s#%d#%d#%d#%s#%s#%s#", accounts[i].username, accounts[i].password, accounts[i].day, accounts[i].month, accounts[i].year, accounts[i].phoneNum, accounts[i].email, accounts[i].city);
+        fprintf(file, "%d#%d#%d#", accounts[i].plannedWorkouts.front, accounts[i].plannedWorkouts.rear, accounts[i].completedWorkouts.top);
+
+        for (int j = 0; j < 50; j++) {
+            fprintf(file, "%d#", accounts[i].plannedWorkouts.items[j]);
+        }
+
+        for (int j = 0; j <= accounts[i].completedWorkouts.top; j++) {
+            fprintf(file, "%d#%d#%d#%.2f#", accounts[i].completedWorkouts.items[j].exercise, accounts[i].completedWorkouts.items[j].sets, accounts[i].completedWorkouts.items[j].reps, accounts[i].completedWorkouts.items[j].weight);
+        }
+
+        for (int j = 0; j < 7; j++) {
+            fprintf(file, "%d#%.2f#%d#%d#", accounts[i].personalRecords[j].exercise, accounts[i].personalRecords[j].maxWeight, accounts[i].personalRecords[j].maxSets, accounts[i].personalRecords[j].maxReps);
+        }
+        fprintf(file, "\n");
+    }
+    fclose(file);
+}
+
+int loadAccounts(Account accounts[]) {
+    FILE *file = fopen("acc.txt", "r");
+    if (!file) return 0;
+
+    int count = 0;
+    while (fscanf(file, "%[^#]#%[^#]#%d#%d#%d#%[^#]#%[^#]#%[^#]#%d#%d#%d#", accounts[count].username, accounts[count].password, &accounts[count].day, &accounts[count].month, &accounts[count].year, accounts[count].phoneNum, accounts[count].email, accounts[count].city, &accounts[count].plannedWorkouts.front, &accounts[count].plannedWorkouts.rear, &accounts[count].completedWorkouts.top) != EOF) {
+
+        for (int j = 0; j < 50; j++) {
+            fscanf(file, "%d#", &accounts[count].plannedWorkouts.items[j]);
+        }
+
+        for (int j = 0; j <= accounts[count].completedWorkouts.top; j++) {
+            fscanf(file, "%d#%d#%d#%f#", &accounts[count].completedWorkouts.items[j].exercise, &accounts[count].completedWorkouts.items[j].sets, &accounts[count].completedWorkouts.items[j].reps, &accounts[count].completedWorkouts.items[j].weight);
+        }
+
+        for (int j = 0; j < 7; j++) {
+            fscanf(file, "%d#%f#%d#%d#", &accounts[count].personalRecords[j].exercise, &accounts[count].personalRecords[j].maxWeight, &accounts[count].personalRecords[j].maxSets, &accounts[count].personalRecords[j].maxReps);
+        }
+        count++;
+        if (count >= 100) {
+            break;
+        }
+    }
+    fclose(file);
+    return count;
+}
+
+int main(){
+    Account accounts[100];
+    int choice, jumlahData = 0, a = 0, isValid, picks;
+    char user[50], pass[17], temp[17];
+    Queue loginQueue;
+    initializeQueue(&loginQueue);
+
+    FILE *file = fopen("acc.txt", "r");
+    if (!file) {
+        printf("File not found!\n");
+        return 1;
+    }
+
+    while(fscanf(file, "%[^#]#%[^#]#%d#%d#%d#%[^#]#%[^#]#%[^\n]\n", accounts[jumlahData].username, accounts[jumlahData].password, &accounts[jumlahData].day, &accounts[jumlahData].month, &accounts[jumlahData].year, accounts[jumlahData].phoneNum, accounts[jumlahData].email, accounts[jumlahData].city) != EOF) {
+        jumlahData++;
+    }
+    fclose(file);
+
+    int isLoggedIn = 0;
+    while(1){
+        isValid = 0;
+        if (isLoggedIn == 0){
+            picks = 0;
+            printf("You have not logged in yet, please login or Sign-Up!\n");
+            printf("1. Login\n");
+            printf("2. Sign-Up\n");
+            printf("3. Exit\n");
+            while (1) {
+                printf("Choice: ");
+                if (scanf("%d", &choice) == 1) {
+                    while (getchar() != '\n');
+                    break;
+                } else {
+                    printf("Invalid input! Please enter a valid number.\n");
+                    while (getchar() != '\n');
+                }
+            }
+        } else {
+            choice = 0;
+            printf("\nWelcome, %s.\n", user);
+            printf("1. LogOut\n");
+            printf("2. Login History\n");
+            printf("3. Delete Login History\n");
+            printf("4. Account Details\n");
+            printf("5. Edit Account Details\n");
+            printf("6. Plan Workout\n");
+            printf("7. Track Workout\n");
+            printf("8. Unfinished Workouts\n");
+            printf("9. Workout History\n");
+            printf("10. Leaderboards\n");
+            printf("11. Exit\n");
+            printf("Choice: ");
+            while (1) {
+                printf("Choice: ");
+                if (scanf("%d", &picks) == 1) {
+                    while (getchar() != '\n');
+                    break;
+                } else {
+                    printf("Invalid input! Please enter a valid number.\n");
+                    while (getchar() != '\n');
+                }
+            }
+        }
+
+        if (isLoggedIn == 0){
+            if (choice == 1){
+                printf("===================================\n");
+                printf("               Login            \n");
+                printf("===================================\n");
+                printf("Enter -1 to exit\n");
+
+                do {
+                    printf("Username: ");
+                    scanf(" %[^\n]", user);
+
+                    if ((strcmp(user, "-1")) == 0){
+                        printf("Exiting...\n\n");
+                        break;
+                    }
+
+                    printf("Password: ");
+                    scanf(" %[^\n]", pass);
+
+                    for (int i = 0; i < jumlahData; i++) {
+                        if (strcmp(accounts[i].username, user) == 0 && strcmp(accounts[i].password, pass) == 0) {
+                            isValid = 1;
+                            enqueue(&loginQueue, user, accounts[i].city);
+                            break;
+                        }
+                    }
+
+                    if (!isValid) {
+                        printf("Something Went Wrong... Incorrect Username or Password!\n");
+                        continue;
+                    } else {
+                        printf("Login Successful!\n");
+                        isLoggedIn++;
+                        break;
+                    }
+                    printf("===================================\n");
+                } while(1);
+            } else {
+                if (choice == 2){
+                    FILE *signUp = fopen("acc.txt", "a");
+
+                    while(1){
+                        printf("===================================\n");
+                        printf("               Sign Up            \n");
+                        printf("===================================\n");
+                        printf("Enter -1 to exit\n");
+
+                        int exitFlag = 0;
+
+                        do {
+                            int isDuplicate = 0;
+                            printf("Username\t: ");
+                            scanf(" %[^\n]", temp);
+
+                            if ((strcmp(temp, "-1")) == 0){
+                                printf("Exiting...\n\n");
+                                exitFlag = 1;
+                                break;
+                            }
+
+                            for (int i = 0; i < jumlahData; i++) {
+                                if (strcmp(temp, accounts[i].username) == 0) {
+                                    printf("Sorry, Username has been used, please pick a different username!\n");
+                                    isDuplicate = 1;
+                                    break;
+                                }
+                            }
+
+                            if (!isDuplicate) {
+                                strcpy(accounts[jumlahData].username, temp);
+                                fprintf(signUp, "%s#", accounts[jumlahData].username);
+                                break;
+                            }
+                        } while(1);
+
+                        if (exitFlag) {
+                            fclose(signUp);
+                            break;
+                        }
+
+                        do {
+                            printf("Password\t: ");
+                            scanf(" %s", temp);
+                            if (strlen(temp) > 16) {
+                                printf("Password is too long! Try again.\n");
+                            } else if (strlen(temp) < 5) {
+                                printf("Password is too short! Try again.\n");
+                            } else {
+                                strcpy(accounts[jumlahData].password, temp);
+                                fprintf(signUp, "%s#", accounts[jumlahData].password);
+                                break;
+                            }
+                        } while (1);
+
+                        printf("Your Birthdate in numbers (DD MM YYYY)\n");
+
+                        while (1) {
+                            printf("day\t: ");
+                            if (scanf(" %d", &accounts[jumlahData].day) == 1) {
+                                while (getchar() != '\n');
+                                break;
+                            } else {
+                                printf("Invalid input! Please enter a valid number.\n");
+                                while (getchar() != '\n');
+                            }
+                        }
+                        fprintf(signUp, "%d#", accounts[jumlahData].day);
+
+                        while (1) {
+                            printf("month\t: ");
+                            if (scanf(" %d", &accounts[jumlahData].month) == 1) {
+                                while (getchar() != '\n');
+                                break;
+                            } else {
+                                printf("Invalid input! Please enter a valid number.\n");
+                                while (getchar() != '\n');
+                            }
+                        }
+                        fprintf(signUp, "%d#", accounts[jumlahData].month);
+
+                        while (1) {
+                            printf("year\t: ");
+                            if (scanf(" %d", &accounts[jumlahData].year) == 1) {
+                                while (getchar() != '\n');
+                                break;
+                            } else {
+                                printf("Invalid input! Please enter a valid number.\n");
+                                while (getchar() != '\n');
+                            }
+                        }
+                        fprintf(signUp, "%d#", accounts[jumlahData].year);
+
+                        printf("Phone Number\t: ");
+                        scanf(" %[^\n]", accounts[jumlahData].phoneNum);
+                        fprintf(signUp, "%s#", accounts[jumlahData].phoneNum);
+
+                        printf("Email\t: ");
+                        scanf(" %[^\n]", accounts[jumlahData].email);
+                        fprintf(signUp, "%s#", accounts[jumlahData].email);
+
+                        printf("City\t: ");
+                        scanf(" %[^\n]", accounts[jumlahData].city);
+                        fprintf(signUp, "%s\n", accounts[jumlahData].city);
+
+                        fclose(signUp);
+                        jumlahData++;
+                        printf("===================================\n\n");
+                        break;
+                    }
+                } else {
+                    if (choice == 3){
+                        printf("Program Exiting...");
+                        break;
+                    } else {
+                        printf("Invalid input, please try again...\n\n");
+                    }
+                }
+            }
+        } else {
+            if (picks == 1){
+                isLoggedIn = 0;
+                printf("Successfully logged Out!\n\n");
+            } else {
+                if (picks == 2){
+                    displayQueue(&loginQueue);
+                } else {
+                    if (picks == 3){
+                        deleteLoginHistory(&loginQueue);
+                    } else {
+                        if (picks == 4){
+                            int found = 0, index;
+
+                            for (int i = 0; i < jumlahData; i++) {
+                                if (strcmp(accounts[i].username, user) == 0) {
+                                    index = i;
+                                    found = 1;
+                                    break;
+                                }
+                            }
+
+                            if (found) {
+                                printf("\n============= Account Details ===============\n");
+                                printf("Username        : %s\n", accounts[index].username);
+                                printf("Birthdate       : %d-%d-%d\n", accounts[index].day, accounts[index].month, accounts[index].year);
+                                printf("Phone Number    : %s\n", accounts[index].phoneNum);
+                                printf("Email           : %s\n", accounts[index].email);
+                                printf("City            : %s\n", accounts[index].city);
+                                printf("==============================================\n");
+                            } else {
+                                printf("Error: Account not found!\n");
+                            }
+                        } else {
+                            if (picks == 5){
+                                modifyAccount(accounts, jumlahData, user);
+                            } else {
+                                if (picks == 6){
+                                    printf("\nExercise Types:\n");
+                                    printf("1. Bench\n");
+                                    printf("2. Crunches\n");
+                                    printf("3. Curls\n");
+                                    printf("4. Deadlift\n");
+                                    printf("5. Leg Press\n");
+                                    printf("6. Pull Ups\n");
+                                    printf("7. Squat\n");
+                                    printf("8. Bench PR\n");
+                                    printf("9. Crunches PR\n");
+                                    printf("10. Curls PR\n");
+                                    printf("11. Deadlift PR\n");
+                                    printf("12. Leg Press PR\n");
+                                    printf("13. Pull Ups PR\n");
+                                    printf("14. Squat PR\n");
+                                    printf("Choose exercise: ");
+                                    int ex;
+                                    if(scanf("%d", &ex) == 1){
+                                        while(getchar() != '\n');
+                                        if(ex >= 1 && ex <= 14){
+                                            for(int i = 0; i < jumlahData; i++){
+                                                if(strcmp(accounts[i].username, user) == 0){
+                                                    enqueueWorkout(&accounts[i].plannedWorkouts, ex);
+                                                    saveAccounts(accounts, jumlahData);
+                                                    printf("Added to workout plan!\n");
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    if (picks == 7){
+                                        for (int i = 0; i< jumlahData; i++) {
+                                            if(strcmp(accounts[i].username, user) == 0) {
+                                                if(accounts[i].plannedWorkouts.front == -1) {
+                                                    printf("\nNo workouts to track!\n");
+                                                } else {
+                                                    int ex = dequeueWorkout(&accounts[i].plannedWorkouts);
+                                                    Workout w;
+                                                    w.exercise = ex;
+                                                    printf("Enter sets: ");
+                                                    scanf("%d", &w.sets);
+                                                    printf("Enter reps: ");
+                                                    scanf("%d", &w.reps);
+                                                    printf("Enter weight: ");
+                                                    scanf("%f", &w.weight);
+                                                    addWorkout(&accounts[i].completedWorkouts, w);
+                                                    updatePR(&accounts[i], w);
+                                                    saveAccounts(accounts, jumlahData);
+                                                    printf("Workout tracked!\n");
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        if (picks == 8){
+                                            printf("\nPlanned Workouts:\n");
+                                            for(int i = 0; i < jumlahData; i++){
+                                                if(strcmp(accounts[i].username, user) == 0){
+                                                    if(accounts[i].plannedWorkouts.front == -1){
+                                                        printf("No planned workouts!\n");
+                                                    } else {
+                                                        int j = accounts[i].plannedWorkouts.front;
+                                                        while(1){
+                                                            printf("- Exercise %d\n", accounts[i].plannedWorkouts.items[j]);
+                                                            if(j == accounts[i].plannedWorkouts.rear) {
+                                                                break;
+                                                            }
+                                                            j = (j + 1) % 50;
+                                                        }
+                                                    }
+                                                    continue;
+                                                }
+                                            }
+                                        } else {
+                                            if (picks == 9){
+                                                printf("\nWorkout History:\n");
+                                                for(int i = 0; i < jumlahData; i++){
+                                                    if(strcmp(accounts[i].username, user) == 0){
+                                                        if(accounts[i].completedWorkouts.top == -1){
+                                                            printf("No completed workouts!\n");
+                                                        } else {
+                                                            for(int j = 0; j < accounts[i].completedWorkouts.top; j++){
+                                                                printf("%d. Exercise %d: %dx%d @ %.1fkg\n", j+1, accounts[i].completedWorkouts.items[j].exercise, accounts[i].completedWorkouts.items[j].sets, accounts[i].completedWorkouts.items[j].reps, accounts[i].completedWorkouts.items[j].weight);
+                                                            }
+                                                        }
+                                                        break;
+                                                    }
+                                                }
+                                            } else {
+                                                if (picks == 10) {
+                                                    printf("\nWIP!\n");
+                                                } else {
+                                                    if (picks == 11) {
+                                                        printf("Program Exiting...");
+                                                        break;
+                                                    } else {
+                                                        printf("Invalid input, please try again...\n\n");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
