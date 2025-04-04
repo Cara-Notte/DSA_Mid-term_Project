@@ -1,0 +1,202 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct schedule {
+    char username[50];
+    int day, month, year;
+    char type[30];
+    struct schedule *next;
+} Schedule;
+
+void viewSchedule(Schedule *head, const char *username, int todayDay, int todayMonth, int todayYear);
+void loadSchedule(Schedule **head);
+void addSchedule(Schedule **head, const char *username);
+void saveSchedule(Schedule *head);
+int isDatePast(int d1, int m1, int y1, int d2, int m2, int y2);
+void clearPastEntries(Schedule **head, const char *username, int todayDay, int todayMonth, int todayYear);
+
+void viewSchedule(Schedule *head, const char *username, int todayDay, int todayMonth, int todayYear) {
+    printf("\n==== Your Schedule ====\n");
+    int dataFound = 0;
+    while (head) {
+        if (strcmp(head->username, username) == 0) {
+            printf("%02d-%02d-%04d : %s", head->day, head->month, head->year, head>type);
+            if (head->day == todayDay && head->month == todayMonth && head->year == todayYear) {
+                printf(" (today)");
+            }
+            printf("\n");
+            dataFound = 1;
+        }
+        head = head->next;
+    }
+    if (!dataFound) {
+        printf("No schedule found.\n");
+    }
+    printf("=======================\n");
+}
+
+void loadSchedule(Schedule **head) {
+    FILE *file = fopen("schedules.txt", "r");
+    if (!file) return;
+
+    Schedule *temp;
+    char username[50], type[30];
+    int d, m, y;
+
+    while (fscanf(file, "%[^#]#%d#%d#%d#%[^]\n", username, &d, &m, &y, type) == 5) {
+        temp = (Schedule *)malloc(sizeof(Schedule));
+        strcpy(temp->username, username);
+        strcpy(temp->type, type);
+        temp->day = d;
+        temp->month = m;
+        temp->year = y;
+        temp->next = NULL;
+
+        if (*head == NULL) {
+            *head = temp;
+        } else {
+            Schedule *ptr = *head;
+            while (ptr->next) ptr = ptr->next;
+            ptr->next = temp;
+        }
+    }
+
+    fclose(file);
+}
+
+void addSchedule(Schedule **head, const char *username) {
+    Schedule *newNode = (Schedule *)malloc(sizeof(Schedule));
+    strcpy(newNode->username, username);
+
+    printf("Enter the date of schedule (DD MM YYYY): ");
+    scanf("%d %d %d", &newNode->day, &newNode->month, &newNode->year);
+
+    printf("Select a workout type:\n");
+    printf("1. Cardio\n");
+    printf("2. Leg Day\n");
+    printf("3. Push Day\n");
+    printf("4. Pull Day\n");
+    printf("5. Rest Day\n");
+
+    int type;
+    do {
+        printf("Choice: ");
+        scanf("%d", &type);
+    } while (type < 1 || type > 5);
+
+    switch (type) {
+        case 1:
+            strcpy(newNode->type, "Cardio");
+            break;
+        case 2:
+            strcpy(newNode->type, "Leg Day");
+            break;
+        case 3:
+            strcpy(newNode->type, "Push Day");
+            break;
+        case 4:
+            strcpy(newNode->type, "Pull Day");
+            break;
+        case 5:
+            strcpy(newNode->type, "Rest Day");
+            break;
+    }
+
+    newNode->next = NULL;
+
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        Schedule *temp = *head;
+        while (temp->next) temp = temp->next;
+        temp->next = newNode;
+    }
+
+    saveSchedule(*head);
+    printf("Schedule added successfully!\n");
+}
+
+void saveSchedule(Schedule *head) {
+    FILE *file = fopen("schedules.txt", "w");
+    while (head) {
+        fprintf(file, "%s#%d#%d#%d#%s\n", head->username, head->day, head->month, head->year, head->type);
+        head = head->next;
+    }
+    fclose(file);
+}
+
+int isDatePast(int d1, int m1, int y1, int d2, int m2, int y2) {
+    if (y1 < y2) return 1;
+    if (y1 == y2 && m1 < m2) return 1;
+    if (y1 == y2 && m1 == m2 && d1 < d2) return 1;
+    return 0;
+}
+
+void clearPastEntries(Schedule **head, const char *username, int todayDay, int todayMonth, int todayYear) {
+    Schedule *curr = *head, *prev = NULL;
+
+    while (curr != NULL) {
+        if (strcmp(curr->username, username) == 0 && isDatePast(curr->day, curr->month, curr->year, todayDay, todayMonth, todayYear)) {
+            Schedule *toDelete = curr;
+            if (prev == NULL) {
+                *head = curr->next;
+                curr = *head;
+            } else {
+                prev->next = curr->next;
+                curr = prev->next;
+            }
+            free(toDelete);
+        } else {
+            prev = curr;
+            curr = curr->next;
+        }
+    }
+
+    saveSchedule(*head);
+    printf("Past schedule entries cleared!\n");
+}
+
+int main() {
+    Schedule *scheduleHead = NULL;
+    char currentUser[50];
+    int todayDay, todayMonth, todayYear;
+
+    printf("Enter your username: ");
+    scanf(" %[^"]", currentUser);
+
+    printf("Enter today's date (DD MM YYYY): ");
+    scanf("%d %d %d", &todayDay, &todayMonth, &todayYear);
+
+    loadSchedule(&scheduleHead);
+
+    int select;
+    do {
+        printf("\n===== Schedule Menu =====\n");
+        printf("1. View Schedule\n");
+        printf("2. Add Schedule\n");
+        printf("3. Clear Past Entries\n");
+        printf("4. Exit\n");
+        printf("Choose: ");
+        scanf("%d", &select);
+
+        switch (select) {
+            case 1:
+                viewSchedule(scheduleHead, currentUser, todayDay, todayMonth, todayYear);
+                break;
+            case 2:
+                addSchedule(&scheduleHead, currentUser);
+                break;
+            case 3:
+                clearPastEntries(&scheduleHead, currentUser, todayDay, todayMonth, todayYear);
+                break;
+            case 4:
+                printf("Returning...\n");
+                break;
+            default:
+                printf("Invalid option.\n");
+        }
+    } while (select != 4);
+
+    return 0;
+}
