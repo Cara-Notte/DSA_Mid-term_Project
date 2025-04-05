@@ -8,7 +8,7 @@ typedef struct {
     char type[30];
 } Schedule;
 
-#define MAX_SCHEDULES 100  // Maximum number of schedules
+#define MAX_SCHEDULES 100
 Schedule schedules[MAX_SCHEDULES];
 int scheduleCount = 0;
 
