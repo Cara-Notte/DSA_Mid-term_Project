@@ -142,7 +142,7 @@ void trainerMenu(const char* username) {
     char today[6];
     printf("Enter today's date, with space inbetween day & month (dd/mm): ");
     fgets(today, sizeof(today), stdin);
-    getchar();  // Clear buffer
+    getchar();
 
     int choice;
     do {
@@ -238,15 +238,14 @@ Booking* loadBookings() {
     char line[128];
 
     while (fgets(line, sizeof(line), file)) {
-        // Skip empty lines
+
         if (strlen(line) < 3) continue;
 
         Booking* b = malloc(sizeof(Booking));
-        char* copy = strdup(line);  // Create mutable copy
+        char* copy = strdup(line); 
         char* token;
         int field = 0;
 
-        // Split line into tokens
         token = strtok(copy, "#\n");
         while (token != NULL && field < 6) {
             switch(field) {
@@ -263,12 +262,12 @@ Booking* loadBookings() {
 
         free(copy);
 
-        // Validate parsed fields
+
         if (field == 6) {
             b->next = head;
             head = b;
         } else {
-            free(b);  // Discard invalid entries
+            free(b);
             printf("Invalid booking data: %s", line);
         }
     }
