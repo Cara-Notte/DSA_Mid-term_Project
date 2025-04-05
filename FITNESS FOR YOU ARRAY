@@ -74,6 +74,127 @@ void initializeQueue(Queue *q) {
     q->count = 0;
 }
 
+typedef struct Book{
+    char name[50];
+    int time;
+    int room;
+}Book;
+
+void booking(Book book[], int *booknum) {
+    int month, day, hour, minute, value, roomChoice;
+    char nama[50];
+
+    printf("Month: ");
+    scanf("%d", &month);
+    printf("Day: ");
+    scanf("%d", &day);
+    printf("Hour: ");
+    scanf("%d", &hour);
+    printf("Minute: ");
+    scanf("%d", &minute);
+    printf("Name: ");
+    scanf(" %[^\n]", nama);
+    printf("Select a Room:\n");
+    printf("1. Gymnastic Room\n");
+    printf("2. Ballerina Room\n");
+    printf("3. Fitness Room\n");
+    printf("Enter your choice (1-3): ");
+    scanf("%d", &roomChoice);
+
+    if (roomChoice < 1 || roomChoice > 3) {
+        printf("Invalid room choice.\n");
+        return;
+    }
+
+    value = minute + (hour * 60) + (day * 1440) + (month * 43800);
+
+    FILE *file = fopen("book.txt", "r");
+    *booknum = 0;
+    while (fscanf(file, "%49[^#]#%d#%d\n", book[*booknum].name, &book[*booknum].time, &book[*booknum].room) == 3) {
+        (*booknum)++;
+    }
+    fclose(file);
+
+    for (int i = 0; i < *booknum; i++) {
+        if (book[i].room == roomChoice && (value >= book[i].time - 120 && value <= book[i].time + 120)) {
+            printf("Sorry, the room is booked at this time.\n");
+            return;
+        }
+    }
+
+    strcpy(book[*booknum].name, nama);
+    book[*booknum].time = value;
+    book[*booknum].room = roomChoice;
+    (*booknum)++;
+
+    file = fopen("book.txt", "w");
+    if (!file) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    for (int i = 0; i < *booknum; i++) {
+        fprintf(file, "%s#%d#%d\n", book[i].name, book[i].time, book[i].room);
+    }
+    fclose(file);
+
+    printf("Booking successfully added!\n");
+}
+
+void bookcancel(Book book[], int *booknum){
+    int month, day, hour, minute, value, roomChoice;
+    int found = 0;
+    char nama[50];
+
+    printf("Month: ");
+    scanf("%d", &month);
+    printf("Day: ");
+    scanf("%d", &day);
+    printf("Hour: ");
+    scanf("%d", &hour);
+    printf("Minute: ");
+    scanf("%d", &minute);
+    printf("Name: ");
+    scanf(" %[^\n]", nama);
+    printf("Select a Room:\n");
+    printf("Select a Room:\n");
+    printf("1. Gymnastic Room\n");
+    printf("2. Ballerina Room\n");
+    printf("3. Fitness Room\n");
+    printf("Enter your choice (1-3): ");
+    scanf("%d", &roomChoice);
+
+    if (roomChoice < 1 || roomChoice > 3) {
+        printf("Invalid room choice.\n");
+        return;
+    }
+
+    value = minute + (hour * 60) + (day * 1440) + (month * 43800);
+
+    FILE *file = fopen("book.txt", "r");
+    *booknum = 0;
+    while (fscanf(file, "%49[^#]#%d#%d\n", book[*booknum].name, &book[*booknum].time, &book[*booknum].room) == 3) {
+        (*booknum)++;
+    }
+    fclose(file);
+
+    file = fopen("book.txt", "w");
+
+    for (int i = 0; i < *booknum; i++) {
+        if (strcmp(book[i].name, nama) == 0 && book[i].room == roomChoice && book[i].time == value) {
+            found = 1;
+            continue;
+        }
+        fprintf(file, "%s#%d#%d\n", book[i].name, book[i].time, book[i].room);
+    }
+    fclose(file);
+
+    if (found) {
+        printf("Booking successfully deleted!\n");
+    }
+
+}
+
 void enqueue(Queue *q, char username[], char city[]) {
     if (q->count == 5) {
         q->front = (q->front + 1) % 5;
@@ -477,6 +598,8 @@ const char* exerciseName(ExerciseType ex) {
 
 int main(){
     Account accounts[100];
+    Book book[100];
+    int booknum=0;
     int choice, jumlahData = 0, a = 0, isValid, picks;
     char user[50], pass[17], temp[17];
     Queue loginQueue;
@@ -498,6 +621,14 @@ int main(){
         isValid = 0;
         if (isLoggedIn == 0){
             picks = 0;
+            printf("=======================================================================\n");
+            printf("  ______ _ _                         ______          __     __         \n");
+            printf(" |  ____(_) |                       |  ____|         \\ \\   / /         \n");
+            printf(" | |__   _| |_ _ __   ___  ___ ___  | |__ ___  _ __   \\ \\_/ /__  _   _ \n");
+            printf(" |  __| | | __| '_ \\ / _ \\/ __/ __| |  __/ _ \\| '__|   \\   / _ \\| | | |\n");
+            printf(" | |    | | |_| | | |  __/\\__ \\__ \\ | | | (_) | |       | | (_) | |_| |\n");
+            printf(" |_|    |_|\\__|_| |_|\\___||___/___/ |_|  \\___/|_|       |_|\\___/ \\__,_|\n");
+            printf("=======================================================================\n");
             printf("You have not logged in yet, please login or Sign-Up!\n");
             printf("1. Login\n");
             printf("2. Sign-Up\n");
@@ -514,7 +645,15 @@ int main(){
             }
         } else {
             choice = 0;
-            printf("\nWelcome, %s.\n", user);
+            printf("\n=======================================================================\n");
+            printf("  ______ _ _                         ______          __     __         \n");
+            printf(" |  ____(_) |                       |  ____|         \\ \\   / /         \n");
+            printf(" | |__   _| |_ _ __   ___  ___ ___  | |__ ___  _ __   \\ \\_/ /__  _   _ \n");
+            printf(" |  __| | | __| '_ \\ / _ \\/ __/ __| |  __/ _ \\| '__|   \\   / _ \\| | | |\n");
+            printf(" | |    | | |_| | | |  __/\\__ \\__ \\ | | | (_) | |       | | (_) | |_| |\n");
+            printf(" |_|    |_|\\__|_| |_|\\___||___/___/ |_|  \\___/|_|       |_|\\___/ \\__,_|\n");
+            printf("=======================================================================\n");
+            printf("Welcome, %s.\n", user);
             printf("1. LogOut\n");
             printf("2. Login History\n");
             printf("3. Delete Login History\n");
@@ -525,7 +664,9 @@ int main(){
             printf("8. Unfinished Workouts\n");
             printf("9. Workout History\n");
             printf("10. Leaderboards\n");
-            printf("11. Exit\n");
+            printf("11. Book a room\n");
+            printf("12. Cancel booking\n");
+            printf("13. Exit\n");
             while (1) {
                 printf("Choice: ");
                 if (scanf("%d", &picks) == 1) {
@@ -1069,10 +1210,24 @@ int main(){
                                                     }
                                                 } else {
                                                     if (picks == 11) {
-                                                        printf("Program Exiting...");
-                                                        break;
+                                                        while(1){
+                                                            booking(book, &booknum);
+                                                            break;
+                                                        }
                                                     } else {
-                                                        printf("Invalid input, please try again...\n\n");
+                                                        if (picks == 12) {
+                                                            while(1){
+                                                                bookcancel(book, &booknum);
+                                                                break;
+                                                            }
+                                                        } else {
+                                                            if (picks == 13) {
+                                                                printf("Program Exiting...");
+                                                                break;
+                                                            } else {
+                                                                printf("Invalid input, please try again...\n\n");
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
