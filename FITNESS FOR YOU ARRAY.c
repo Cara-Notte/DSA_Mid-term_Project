@@ -451,7 +451,6 @@ int loadAccounts(Account accounts[]) {
     if (!file) {
         return 0;
     }
-
     int count = 0;
     char buffer[2048];
     while (fgets(buffer, sizeof(buffer), file) && count < 100) {
@@ -464,7 +463,6 @@ int loadAccounts(Account accounts[]) {
 
         strncpy(accounts[count].username, ptr, 49);
         ptr = strtok(NULL, "#\n");
-
         strncpy(accounts[count].password, ptr, 16);
         ptr = strtok(NULL, "#\n");
         accounts[count].day = ptr ? atoi(ptr) : 1;
@@ -479,7 +477,6 @@ int loadAccounts(Account accounts[]) {
         ptr = strtok(NULL, "#\n");
         strncpy(accounts[count].city, ptr ? ptr : "", 49);
         ptr = strtok(NULL, "#\n");
-
         accounts[count].plannedWorkouts.front = ptr ? atoi(ptr) : -1;
         ptr = strtok(NULL, "#\n");
         accounts[count].plannedWorkouts.rear = ptr ? atoi(ptr) : -1;
@@ -496,7 +493,6 @@ int loadAccounts(Account accounts[]) {
             }
             ptr = strtok(NULL, "#\n");
         }
-
         for (int j = 0; j <= accounts[count].completedWorkouts.top; j++) {
             if (j >= 100) {
                 break;
@@ -519,7 +515,6 @@ int loadAccounts(Account accounts[]) {
                 ptr = strtok(NULL, "#\n");
             }
         }
-
         if (accounts[count].completedWorkouts.top >= 0) {
             int validCount = 0;
             Workout validWorkouts[100];
@@ -528,7 +523,6 @@ int loadAccounts(Account accounts[]) {
                     validWorkouts[validCount++] = accounts[count].completedWorkouts.items[j];
                 }
             }
-
             for (int j = 0; j < validCount; j++) {
                 accounts[count].completedWorkouts.items[j] = validWorkouts[j];
             }
@@ -538,7 +532,6 @@ int loadAccounts(Account accounts[]) {
                 accounts[count].completedWorkouts.top = -1;
             }
         }
-
         for (int j = 0; j < 7; j++) {
             if (ptr) {
                 int ex = atoi(ptr);
@@ -558,7 +551,6 @@ int loadAccounts(Account accounts[]) {
                 ptr = strtok(NULL, "#\n");
             }
         }
-
         if (accounts[count].plannedWorkouts.front < -1 || accounts[count].plannedWorkouts.front >= 50) {
             accounts[count].plannedWorkouts.front = -1;
         }
