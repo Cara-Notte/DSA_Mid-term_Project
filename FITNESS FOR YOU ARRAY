@@ -754,9 +754,9 @@ void addBooking(const char* username, Booking bookings[], int* count) {
     getchar();
 
     printf("Start hour (9-16): ");
-    scanf("%d", &hour);
+    scanf(" %d", &hour);
     printf("Duration (1-8h): ");
-    scanf("%d", &duration);
+    scanf(" %d", &duration);
     getchar();
 
     if(hour < 9 || hour > 16 || duration < 1 || duration > 8) {
@@ -1112,6 +1112,7 @@ int main(){
                             accounts[jumlahData].personalRecords[j].maxReps = 0;
                         }
                         jumlahData++;
+                        printf("\nSuccessfully added a new account!\n");
                         printf("===================================\n\n");
                         fclose(signUp);
                         break;
