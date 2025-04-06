@@ -50,7 +50,7 @@ typedef struct account {
     int month;
     int year;
     char phoneNum[15];
-    char email[20];
+    char email[30];
     char city[50];
 
     WorkoutQueue plannedWorkouts;
@@ -122,7 +122,7 @@ void booking(Book book[], int *booknum) {
 
     value = minute + (hour * 60) + (day * 1440) + (month * 43800);
 
-    FILE *file = fopen("book.txt", "r");
+    FILE *file = fopen("bookA.txt", "r");
     *booknum = 0;
     while (fscanf(file, "%49[^#]#%d#%d\n", book[*booknum].name, &book[*booknum].time, &book[*booknum].room) == 3) {
         (*booknum)++;
@@ -141,7 +141,7 @@ void booking(Book book[], int *booknum) {
     book[*booknum].room = roomChoice;
     (*booknum)++;
 
-    file = fopen("book.txt", "w");
+    file = fopen("bookA.txt", "w");
     if (!file) {
         printf("Error opening file for writing.\n");
         return;
@@ -185,14 +185,14 @@ void bookcancel(Book book[], int *booknum){
 
     value = minute + (hour * 60) + (day * 1440) + (month * 43800);
 
-    FILE *file = fopen("book.txt", "r");
+    FILE *file = fopen("bookA.txt", "r");
     *booknum = 0;
     while (fscanf(file, "%49[^#]#%d#%d\n", book[*booknum].name, &book[*booknum].time, &book[*booknum].room) == 3) {
         (*booknum)++;
     }
     fclose(file);
 
-    file = fopen("book.txt", "w");
+    file = fopen("bookA.txt", "w");
 
     for (int i = 0; i < *booknum; i++) {
         if (strcmp(book[i].name, nama) == 0 && book[i].room == roomChoice && book[i].time == value) {
@@ -307,7 +307,7 @@ void modifyAccount(Account accounts[], int jumlahData, char user[]) {
             return;
     }
 
-    FILE *file = fopen("acc.txt", "w");
+    FILE *file = fopen("accA.txt", "w");
     if (!file) {
         printf("Error: Unable to update account file!\n");
         return;
@@ -377,33 +377,6 @@ void updatePR(Account *acc, Workout w) {
     }
 }
 
-int compareChampions(const void *a, const void *b) {
-    const FitnessChampion *champA = (const FitnessChampion *)a;
-    const FitnessChampion *champB = (const FitnessChampion *)b;
-    return champB->totalWorkouts - champA->totalWorkouts;
-}
-
-int compareStrength(const void *a, const void *b) {
-    const StrengthRecord *recordA = (const StrengthRecord *)a;
-    const StrengthRecord *recordB = (const StrengthRecord *)b;
-
-    if (recordA->bestWeight > recordB->bestWeight) {
-        return -1;
-    }
-    if (recordA->bestWeight < recordB->bestWeight) {
-        return 1;
-    }
-
-    if (recordA->bestSets > recordB->bestSets) {
-        return -1;
-    }
-    if (recordA->bestSets < recordB->bestSets) {
-        return 1;
-    }
-
-    return recordB->bestReps - recordA->bestReps;
-}
-
 void showLeaderboardHeader(const char *title) {
     printf("\n*--*-*-*--*--*-*-*--**--*-*-*--*--*-*-*--*\n");
     printf("   %s\n", title);
@@ -423,7 +396,7 @@ void showExerciseChoices() {
 }
 
 void saveAccounts(Account accounts[], int count) {
-    FILE *file = fopen("acc.txt", "w");
+    FILE *file = fopen("accA.txt", "w");
     if (!file) {
         return;
     }
@@ -474,7 +447,7 @@ void cleanWorkoutQueue(WorkoutQueue *q) {
 }
 
 int loadAccounts(Account accounts[]) {
-    FILE *file = fopen("acc.txt", "r");
+    FILE *file = fopen("accA.txt", "r");
     if (!file) {
         return 0;
     }
@@ -502,7 +475,7 @@ int loadAccounts(Account accounts[]) {
         ptr = strtok(NULL, "#\n");
         strncpy(accounts[count].phoneNum, ptr ? ptr : "", 14);
         ptr = strtok(NULL, "#\n");
-        strncpy(accounts[count].email, ptr ? ptr : "", 19);
+        strncpy(accounts[count].email, ptr ? ptr : "", 29);
         ptr = strtok(NULL, "#\n");
         strncpy(accounts[count].city, ptr ? ptr : "", 49);
         ptr = strtok(NULL, "#\n");
@@ -787,7 +760,7 @@ void addBooking(const char* username, Booking bookings[], int* count) {
 }
 
 int loadBookings(Booking bookings[]) {
-    FILE* file = fopen("trainer-bookings.txt", "r");
+    FILE* file = fopen("trainer-bookingsA.txt", "r");
     if (!file) return 0;
 
     int count = 0;
@@ -829,7 +802,7 @@ int loadBookings(Booking bookings[]) {
 }
 
 void saveBookings(Booking bookings[], int count) {
-    FILE* file = fopen("trainer-bookings.txt", "w");
+    FILE* file = fopen("trainer-bookingsA.txt", "w");
     for(int i = 0; i < count; i++) {
         fprintf(file, "%s#%s#%s#%s#%d#%d\n",
                bookings[i].username, bookings[i].trainer, bookings[i].specialty,
@@ -871,13 +844,13 @@ int main(){
     Queue loginQueue;
     initializeQueue(&loginQueue);
 
-    FILE *file = fopen("acc.txt", "r");
+    FILE *file = fopen("accA.txt", "r");
     if (!file) {
-        file = fopen("acc.txt", "w");
+        file = fopen("accA.txt", "w");
         if (file) {
             fclose(file);
         }
-        file = fopen("acc.txt", "r");
+        file = fopen("accA.txt", "r");
     }
 
     jumlahData = loadAccounts(accounts);
@@ -985,7 +958,7 @@ int main(){
                 } while(1);
             } else {
                 if (choice == 2){
-                    FILE *signUp = fopen("acc.txt", "a");
+                    FILE *signUp = fopen("accA.txt", "a");
 
                     while(1){
                         printf("===================================\n");
@@ -1426,7 +1399,15 @@ int main(){
                                                             continue;
                                                         }
 
-                                                        qsort(champions, champCount, sizeof(FitnessChampion), compareChampions);
+                                                        for (int i = 0; i < champCount - 1; i++) {
+                                                            for (int j = 0; j < champCount - i - 1; j++) {
+                                                                if (champions[j].totalWorkouts < champions[j+1].totalWorkouts) {
+                                                                    FitnessChampion temp = champions[j];
+                                                                    champions[j] = champions[j+1];
+                                                                    champions[j+1] = temp;
+                                                                }
+                                                            }
+                                                        }
                                                         showLeaderboardHeader("Top 10 GOATs - Grinders of All Time!");
                                                         printf("%-4s %-20s %-15s\n", "Rank", "Username", "Workouts Completed");
                                                         for (int i = 0; i < (champCount > 10 ? 10 : champCount); i++) {
@@ -1469,7 +1450,27 @@ int main(){
                                                             continue;
                                                         }
 
-                                                        qsort(records, recordCount, sizeof(StrengthRecord), compareStrength);
+                                                        for (int i = 0; i < recordCount - 1; i++) {
+                                                            for (int j = 0; j < recordCount - i - 1; j++) {
+                                                                int swap = 0;
+                                                                if (records[j].bestWeight < records[j+1].bestWeight) {
+                                                                    swap = 1;
+                                                                } else if (records[j].bestWeight == records[j+1].bestWeight) {
+                                                                    if (records[j].bestSets < records[j+1].bestSets) {
+                                                                        swap = 1;
+                                                                    } else if (records[j].bestSets == records[j+1].bestSets) {
+                                                                        if (records[j].bestReps < records[j+1].bestReps) {
+                                                                            swap = 1;
+                                                                        }
+                                                                    }
+                                                                }
+                                                                if (swap) {
+                                                                    StrengthRecord temp = records[j];
+                                                                    records[j] = records[j+1];
+                                                                    records[j+1] = temp;
+                                                                }
+                                                            }
+                                                        }
                                                         showLeaderboardHeader(exerciseName(targetExercise));
                                                         printf("%-4s %-20s %-8s %-6s %-6s\n", "Rank", "Username", "Weight", "Sets", "Reps");
                                                         for (int i = 0; i < recordCount; i++) {
