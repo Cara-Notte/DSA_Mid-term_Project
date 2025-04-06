@@ -94,9 +94,8 @@ typedef struct {
     char specialty[50];
 } Trainer;
 
-void booking(Book book[], int *booknum) {
+void booking(Book book[], int *booknum, char user[50]) {
     int month, day, hour, minute, value, roomChoice;
-    char nama[50];
 
     printf("Month: ");
     scanf("%d", &month);
@@ -106,8 +105,6 @@ void booking(Book book[], int *booknum) {
     scanf("%d", &hour);
     printf("Minute: ");
     scanf("%d", &minute);
-    printf("Name: ");
-    scanf(" %[^\n]", nama);
     printf("Select a Room:\n");
     printf("1. Gymnastic Room\n");
     printf("2. Ballerina Room\n");
@@ -136,7 +133,7 @@ void booking(Book book[], int *booknum) {
         }
     }
 
-    strcpy(book[*booknum].name, nama);
+    strcpy(book[*booknum].name, user);
     book[*booknum].time = value;
     book[*booknum].room = roomChoice;
     (*booknum)++;
@@ -155,10 +152,9 @@ void booking(Book book[], int *booknum) {
     printf("Booking successfully added!\n");
 }
 
-void bookcancel(Book book[], int *booknum){
+void bookcancel(Book book[], int *booknum, char user[50]){
     int month, day, hour, minute, value, roomChoice;
     int found = 0;
-    char nama[50];
 
     printf("Month: ");
     scanf("%d", &month);
@@ -168,8 +164,6 @@ void bookcancel(Book book[], int *booknum){
     scanf("%d", &hour);
     printf("Minute: ");
     scanf("%d", &minute);
-    printf("Name: ");
-    scanf(" %[^\n]", nama);
     printf("Select a Room:\n");
     printf("Select a Room:\n");
     printf("1. Gymnastic Room\n");
@@ -195,7 +189,7 @@ void bookcancel(Book book[], int *booknum){
     file = fopen("bookA.txt", "w");
 
     for (int i = 0; i < *booknum; i++) {
-        if (strcmp(book[i].name, nama) == 0 && book[i].room == roomChoice && book[i].time == value) {
+        if (strcmp(book[i].name, user) == 0 && book[i].room == roomChoice && book[i].time == value) {
             found = 1;
             continue;
         }
@@ -451,6 +445,7 @@ int loadAccounts(Account accounts[]) {
     if (!file) {
         return 0;
     }
+
     int count = 0;
     char buffer[2048];
     while (fgets(buffer, sizeof(buffer), file) && count < 100) {
@@ -463,6 +458,7 @@ int loadAccounts(Account accounts[]) {
 
         strncpy(accounts[count].username, ptr, 49);
         ptr = strtok(NULL, "#\n");
+
         strncpy(accounts[count].password, ptr, 16);
         ptr = strtok(NULL, "#\n");
         accounts[count].day = ptr ? atoi(ptr) : 1;
@@ -477,6 +473,7 @@ int loadAccounts(Account accounts[]) {
         ptr = strtok(NULL, "#\n");
         strncpy(accounts[count].city, ptr ? ptr : "", 49);
         ptr = strtok(NULL, "#\n");
+
         accounts[count].plannedWorkouts.front = ptr ? atoi(ptr) : -1;
         ptr = strtok(NULL, "#\n");
         accounts[count].plannedWorkouts.rear = ptr ? atoi(ptr) : -1;
@@ -493,6 +490,7 @@ int loadAccounts(Account accounts[]) {
             }
             ptr = strtok(NULL, "#\n");
         }
+
         for (int j = 0; j <= accounts[count].completedWorkouts.top; j++) {
             if (j >= 100) {
                 break;
@@ -515,6 +513,7 @@ int loadAccounts(Account accounts[]) {
                 ptr = strtok(NULL, "#\n");
             }
         }
+
         if (accounts[count].completedWorkouts.top >= 0) {
             int validCount = 0;
             Workout validWorkouts[100];
@@ -523,6 +522,7 @@ int loadAccounts(Account accounts[]) {
                     validWorkouts[validCount++] = accounts[count].completedWorkouts.items[j];
                 }
             }
+
             for (int j = 0; j < validCount; j++) {
                 accounts[count].completedWorkouts.items[j] = validWorkouts[j];
             }
@@ -532,6 +532,7 @@ int loadAccounts(Account accounts[]) {
                 accounts[count].completedWorkouts.top = -1;
             }
         }
+
         for (int j = 0; j < 7; j++) {
             if (ptr) {
                 int ex = atoi(ptr);
@@ -551,6 +552,7 @@ int loadAccounts(Account accounts[]) {
                 ptr = strtok(NULL, "#\n");
             }
         }
+
         if (accounts[count].plannedWorkouts.front < -1 || accounts[count].plannedWorkouts.front >= 50) {
             accounts[count].plannedWorkouts.front = -1;
         }
@@ -1472,13 +1474,13 @@ int main(){
                                                 } else {
                                                     if (picks == 11) {
                                                         while(1){
-                                                            booking(book, &booknum);
+                                                            booking(book, &booknum, user);
                                                             break;
                                                         }
                                                     } else {
                                                         if (picks == 12) {
                                                             while(1){
-                                                                bookcancel(book, &booknum);
+                                                                bookcancel(book, &booknum, user);
                                                                 break;
                                                             }
                                                         } else {
