@@ -332,10 +332,8 @@ void saveAccounts(Account *head) {
 Account* loadAccounts() {
     FILE *file = fopen("accLL.txt", "r");
     if (!file) return NULL;
-
     Account *head = NULL, *tail = NULL;
     char buffer[2048];
-
     while (fgets(buffer, sizeof(buffer), file)) {
         Account *newAcc = (Account*)malloc(sizeof(Account));
         memset(newAcc, 0, sizeof(Account));
@@ -371,7 +369,6 @@ Account* loadAccounts() {
             char *token = strtok(NULL, "#\n");
             items[j] = token ? atoi(token) : 0;
         }
-
         if (front != -1 && rear != -1) {
             for (int idx = front; idx <= rear; idx++) {
                 ExerciseType ex = items[idx];
@@ -387,39 +384,32 @@ Account* loadAccounts() {
             if (!exToken || strcmp(exToken, "#") == 0) {
                 break;
             }
-
             Workout w;
             w.exercise = atoi(exToken);
-
             if (w.exercise < bench || w.exercise > squatPR) {
                 strtok(NULL, "#\n");
                 strtok(NULL, "#\n");
                 strtok(NULL, "#\n");
                 continue;
             }
-
             char *setsToken = strtok(NULL, "#\n");
             if (!setsToken) {
                 break;
             }
             w.sets = atoi(setsToken);
-
             char *repsToken = strtok(NULL, "#\n");
             if (!repsToken) {
                 break;
             }
             w.reps = atoi(repsToken);
-
             char *weightToken = strtok(NULL, "#\n");
             if (!weightToken) {
                 break;
             }
             w.weight = atof(weightToken);
-
             WorkoutHistory *newNode = (WorkoutHistory*)malloc(sizeof(WorkoutHistory));
             newNode->workout = w;
             newNode->next = NULL;
-
             if (*historyTail) {
                 (*historyTail)->next = newNode;
                 historyTail = &(*historyTail)->next;
@@ -434,21 +424,18 @@ Account* loadAccounts() {
                 break;
             }
             newAcc->personalRecords[i].exercise = benchPR + i;
-
             char *weightToken = strtok(NULL, "#\n");
             if (weightToken) {
                 newAcc->personalRecords[i].maxWeight = atof(weightToken);
             } else {
                 newAcc->personalRecords[i].maxWeight = 0.0f;
             }
-
             char *setsToken = strtok(NULL, "#\n");
             if (setsToken) {
                 newAcc->personalRecords[i].maxSets = atoi(setsToken);
             } else {
                 newAcc->personalRecords[i].maxSets = 0;
             }
-
             char *repsToken = strtok(NULL, "#\n");
             if (repsToken) {
                 newAcc->personalRecords[i].maxReps = atoi(repsToken);
@@ -456,7 +443,6 @@ Account* loadAccounts() {
                 newAcc->personalRecords[i].maxReps = 0;
             }
         }
-
         if(!head) {
             head = tail = newAcc;
         } else {
