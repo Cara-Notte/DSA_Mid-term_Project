@@ -210,7 +210,7 @@ void modifyAccount(Account *head, char user[]) {
                     return;
             }
 
-            FILE *file = fopen("acc.txt", "w");
+            FILE *file = fopen("accLL.txt", "w");
             if (!file) {
                 printf("Error: Unable to update account file!\n");
                 return;
@@ -1107,7 +1107,7 @@ int main(){
                 } while(1);
             } else {
                 if (choice == 2){
-                    FILE *signUp = fopen("acc.txt", "a");
+                    FILE *signUp = fopen("accLL.txt", "a");
                     Account *newNode = (Account *)malloc(sizeof(Account));
 
                     node = head;
