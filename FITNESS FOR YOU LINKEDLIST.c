@@ -210,7 +210,7 @@ void modifyAccount(Account *head, char user[]) {
                     return;
             }
 
-            FILE *file = fopen("acc.txt", "w");
+            FILE *file = fopen("accLL.txt", "w");
             if (!file) {
                 printf("Error: Unable to update account file!\n");
                 return;
@@ -235,7 +235,7 @@ void modifyAccount(Account *head, char user[]) {
 void booking(book **kepala, book **buntut, char user[50]) {
     int value, minute, hour, day, month, roomChoice, time, room;
 
-    FILE *file = fopen("book.txt", "r");
+    FILE *file = fopen("bookLL.txt", "r");
     if (file) {
         char line[100];
 
@@ -308,7 +308,7 @@ void booking(book **kepala, book **buntut, char user[50]) {
     }
 
 
-    file = fopen("book.txt", "w");
+    file = fopen("bookLL.txt", "w");
     book *temp = *kepala;
     while (temp != NULL) {
         fprintf(file, "%s#%d#%d\n", temp->name, temp->time, temp->room);
@@ -336,7 +336,7 @@ void bookcancel(book **kepala, book **buntut, char user[50]){
     int value, minute, hour, day, month, roomChoice, time, room;
     char line[100];
 
-    FILE *file = fopen("book.txt", "r");
+    FILE *file = fopen("bookLL.txt", "r");
     if (file) {
 
         while (fgets(line, sizeof(line), file)) {
@@ -408,7 +408,7 @@ void bookcancel(book **kepala, book **buntut, char user[50]){
             free(current);
             printf("Booking successfully canceled.\n");
 
-            FILE *file = fopen("book.txt", "w");
+            FILE *file = fopen("bookLL.txt", "w");
             book *temp = *kepala;
             while (temp != NULL) {
                 fprintf(file, "%s#%d#%d\n", temp->name, temp->time, temp->room);
@@ -632,7 +632,7 @@ void addBooking(const char* username) {
 }
 
 Booking* loadBookings() {
-    FILE* file = fopen("trainer-bookings.txt", "r");
+    FILE* file = fopen("trainer-bookingsLL.txt", "r");
     if (!file) return NULL;
 
     Booking* head = NULL;
@@ -678,7 +678,7 @@ Booking* loadBookings() {
 }
 
 void saveBookings(Booking* head) {
-    FILE* file = fopen("trainer-bookings.txt", "w");
+    FILE* file = fopen("trainer-bookingsLL.txt", "w");
     while(head) {
         fprintf(file, "%s#%s#%s#%s#%d#%d\n",
                head->username, head->trainer, head->specialty,
@@ -999,7 +999,7 @@ int main(){
     Account *currentAccount = NULL;
     initializeQueue(&loginQueue);
 
-    FILE *file = fopen("acc.txt", "r");
+    FILE *file = fopen("accLL.txt", "r");
     if (!file) {
         printf("File not found!\n");
         return 1;
@@ -1136,7 +1136,7 @@ int main(){
                 } while(1);
             } else {
                 if (choice == 2){
-                    FILE *signUp = fopen("acc.txt", "a");
+                    FILE *signUp = fopen("accLL.txt", "a");
                     Account *newNode = (Account *)malloc(sizeof(Account));
 
                     node = head;
