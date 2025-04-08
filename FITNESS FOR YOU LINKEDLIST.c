@@ -155,7 +155,7 @@ void displayQueue(Queue *q) {
     printf("===================================\n");
 
     LoginHistory *current = q->front;
-    while (current) { // Standard linked list traversal
+    while (current) {
         printf("Username: %s\n", current->username);
         printf("City    : %s\n", current->city);
         printf("--------------------\n");
@@ -434,66 +434,65 @@ void freeAccounts(Account *head) {
 }
 
 void showBookings(const char* username) {
-    Booking* head = loadBookings();                     // to load all bookings into a linked list
-    printf("\n=== Your Bookings ===\n");                // you know..
+    Booking* head = loadBookings();
+    printf("\n=== Your Bookings ===\n");
 
     int found = 0;
-    while (head != NULL) {                             // Looping till no bookings left in the linked list
+    while (head != NULL) {
         if (strcmp(head->username, username) == 0) {
             printf("- Trainer: %s\n", head->trainer);
             printf("  Date: %s, Time: %02d:00-%02d:00\n", head->date, head->hour, head->hour + head->duration);
-            found = 1;                                  // basically our counter to see how much data retrieved
+            found = 1;
         }
-        head = head->next;                             // move to next data booking
+        head = head->next;
     }
 
-    if (!found) printf("No bookings found\n");         // Display when theres no data retrieved
-    freeBookings(head);                                // this gone, then minus 100 points by sir Dennis
+    if (!found) printf("No bookings found\n");
+    freeBookings(head);
 }
 
 void cancelBooking(const char* username) {
-    Booking* head = loadBookings();         // load all bookings from storage
-    Booking* current = head;                // traversal pointer
-    Booking* prev = NULL;                   // previous node tracker
+    Booking* head = loadBookings();
+    Booking* current = head;
+    Booking* prev = NULL;
     char date[6];
     int hour;
 
     printf("enter booking date to cancel (dd/mm): ");
-    fgets(date, sizeof(date), stdin);      // read date input
-    getchar();                             // consume newline
+    fgets(date, sizeof(date), stdin);
+    getchar();
 
     printf("enter start hour: ");
-    scanf("%d", &hour);                    // read hour input
-    getchar();                             // consume newline
+    scanf("%d", &hour);
+    getchar();
 
-    int cancelled = 0;                     // cancellation status flag
-    while (current != NULL) {              // traverse booking list
-        // check if booking matches criteria
+    int cancelled = 0;
+    while (current != NULL) {
         if (strcmp(current->username, username) == 0 &&
             strcmp(current->date, date) == 0 &&
             current->hour == hour) {
 
-            if (prev == NULL) {            // case: deleting head node
+            if (prev == NULL) {
                 head = current->next;
-            } else {                       // case: deleting middle node
+            } else {
                 prev->next = current->next;
             }
 
-            free(current);                // free deleted node memory
-            cancelled = 1;                 // update status
-            break;                        // exit search loop
+            free(current);
+            cancelled = 1;
+            break;
         }
-        prev = current;                   // update previous pointer
-        current = current->next;          // move to next node
+        prev = current;
+        current = current->next;
     }
 
     if (cancelled) {
-        saveBookings(head);               // persist changes to storage
+        saveBookings(head);
         printf("booking cancelled\n");
     } else {
         printf("booking not found\n");
     }
-    freeBookings(head);                   // clean up remaining memory
+    freeBookings(head);
 }
 
 void cleanOldBookings(const char* username) {
@@ -999,43 +998,14 @@ int main(){
     Account *currentAccount = NULL;
     initializeQueue(&loginQueue);
 
-    FILE *file = fopen("accLL.txt", "r");
-    if (!file) {
-        printf("File not found!\n");
-        return 1;
-    }
-
-    char username[50], password[17], phoneNum[15], email[20], city[50];
-    int day, month, year;
-
-    while (fscanf(file, "%[^#]#%[^#]#%d#%d#%d#%[^#]#%[^#]#%[^\n]\n", username, password, &day, &month, &year, phoneNum, email, city) != EOF) {
-        Account *newNode = (Account *)malloc(sizeof(Account));
-        strcpy(newNode->username, username);
-        strcpy(newNode->password, password);
-        newNode->day = day;
-        newNode->month = month;
-        newNode->year = year;
-        strcpy(newNode->phoneNum, phoneNum);
-        strcpy(newNode->email, email);
-        strcpy(newNode->city, city);
-
-        newNode->next = NULL;
-
-        if (!head) {
-            head = tail = newNode;
-        } else {
-            tail->next = newNode;
-            tail = newNode;
-        }
-    }
-    fclose(file);
+    head = loadAccounts();
 
     int isLoggedIn = 0;
     while(1){
         isValid = 0;
         if (isLoggedIn == 0){
             picks = 0;
-            printf("\n=======================================================================\n");
+            printf("=======================================================================\n");
             printf("  ______ _ _                         ______          __     __         \n");
             printf(" |  ____(_) |                       |  ____|         \\ \\   / /         \n");
             printf(" | |__   _| |_ _ __   ___  ___ ___  | |__ ___  _ __   \\ \\_/ /__  _   _ \n");
@@ -1138,6 +1108,7 @@ int main(){
                 if (choice == 2){
                     FILE *signUp = fopen("accLL.txt", "a");
                     Account *newNode = (Account *)malloc(sizeof(Account));
+                    memset(newNode, 0, sizeof(Account));
 
                     node = head;
                     while(1){
@@ -1243,7 +1214,7 @@ int main(){
 
                         printf("City\t: ");
                         scanf(" %[^\n]", newNode->city);
-                        fprintf(signUp, "%s\n", newNode->city);
+                        fprintf(signUp, "%s#\n", newNode->city);
 
                         fclose(signUp);
                         jumlahData++;
@@ -1253,8 +1224,8 @@ int main(){
                         } else {
                             tail->next = newNode;
                             tail = tail->next;
-                            tail->next = NULL;
                         }
+                        tail->next = NULL;
 
                         printf("===================================\n\n");
                         break;
