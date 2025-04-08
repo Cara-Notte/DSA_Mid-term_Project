@@ -1111,7 +1111,7 @@ int main(){
                     memset(newNode, 0, sizeof(Account));
 
                     node = head;
-                    while(1){
+                    while (1) {
                         printf("===================================\n");
                         printf("               Sign Up            \n");
                         printf("===================================\n");
@@ -1124,13 +1124,14 @@ int main(){
                             printf("Username\t: ");
                             scanf(" %[^\n]", name);
 
-                            if ((strcmp(name, "-1")) == 0){
+                            if ((strcmp(name, "-1")) == 0) {
                                 printf("Exiting...\n\n");
                                 exitFlag = 1;
                                 break;
                             }
 
-                            while(node){
+                            node = head;
+                            while (node) {
                                 if (strcmp(name, node->username) == 0) {
                                     printf("Sorry, Username has been used, please pick a different username!\n");
                                     isDuplicate = 1;
@@ -1144,15 +1145,15 @@ int main(){
                                 fprintf(signUp, "%s#", newNode->username);
                                 break;
                             }
-                        } while(1);
+                        } while (1);
 
                         if (exitFlag) {
                             fclose(signUp);
+                            free(newNode);
                             break;
                         }
 
                         do {
-                            node = head;
                             printf("Password\t: ");
                             scanf(" %s", temp);
                             if (strlen(temp) > 16) {
@@ -1214,20 +1215,27 @@ int main(){
 
                         printf("City\t: ");
                         scanf(" %[^\n]", newNode->city);
-                        fprintf(signUp, "%s#\n", newNode->city);
+                        fprintf(signUp, "%s\n", newNode->city);
 
-                        fclose(signUp);
                         jumlahData++;
 
-                        if (!head){
+                        if (!head) {
                             head = tail = newNode;
                         } else {
+                            if (!tail) {
+                                tail = head;
+                                while (tail->next) {
+                                    tail = tail->next;
+                                }
+                            }
                             tail->next = newNode;
-                            tail = tail->next;
+                            tail = newNode;
                         }
                         tail->next = NULL;
-
+                        printf("\nSuccessfully added a new account!\n");
                         printf("===================================\n\n");
+
+                        fclose(signUp);
                         break;
                     }
                 } else {
