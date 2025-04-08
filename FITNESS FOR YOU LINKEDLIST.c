@@ -1215,7 +1215,7 @@ int main(){
 
                         printf("City\t: ");
                         scanf(" %[^\n]", newNode->city);
-                        fprintf(signUp, "%s\n", newNode->city);
+                        fprintf(signUp, "%s#\n", newNode->city);
 
                         jumlahData++;
 
