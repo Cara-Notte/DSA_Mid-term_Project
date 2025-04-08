@@ -999,14 +999,43 @@ int main(){
     Account *currentAccount = NULL;
     initializeQueue(&loginQueue);
 
-    head = loadAccounts();
+    FILE *file = fopen("accLL.txt", "r");
+    if (!file) {
+        printf("File not found!\n");
+        return 1;
+    }
+
+    char username[50], password[17], phoneNum[15], email[20], city[50];
+    int day, month, year;
+
+    while (fscanf(file, "%[^#]#%[^#]#%d#%d#%d#%[^#]#%[^#]#%[^\n]\n", username, password, &day, &month, &year, phoneNum, email, city) != EOF) {
+        Account *newNode = (Account *)malloc(sizeof(Account));
+        strcpy(newNode->username, username);
+        strcpy(newNode->password, password);
+        newNode->day = day;
+        newNode->month = month;
+        newNode->year = year;
+        strcpy(newNode->phoneNum, phoneNum);
+        strcpy(newNode->email, email);
+        strcpy(newNode->city, city);
+
+        newNode->next = NULL;
+
+        if (!head) {
+            head = tail = newNode;
+        } else {
+            tail->next = newNode;
+            tail = newNode;
+        }
+    }
+    fclose(file);
 
     int isLoggedIn = 0;
     while(1){
         isValid = 0;
         if (isLoggedIn == 0){
             picks = 0;
-            printf("=======================================================================\n");
+            printf("\n=======================================================================\n");
             printf("  ______ _ _                         ______          __     __         \n");
             printf(" |  ____(_) |                       |  ____|         \\ \\   / /         \n");
             printf(" | |__   _| |_ _ __   ___  ___ ___  | |__ ___  _ __   \\ \\_/ /__  _   _ \n");
