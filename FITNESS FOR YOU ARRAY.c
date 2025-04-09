@@ -94,8 +94,9 @@ typedef struct {
     char specialty[50];
 } Trainer;
 
-void booking(Book book[], int *booknum, char user[50]) {
+void booking(Book book[], int *booknum) {
     int month, day, hour, minute, value, roomChoice;
+    char nama[50];
 
     printf("Month: ");
     scanf("%d", &month);
@@ -105,6 +106,8 @@ void booking(Book book[], int *booknum, char user[50]) {
     scanf("%d", &hour);
     printf("Minute: ");
     scanf("%d", &minute);
+    printf("Name: ");
+    scanf(" %[^\n]", nama);
     printf("Select a Room:\n");
     printf("1. Gymnastic Room\n");
     printf("2. Ballerina Room\n");
@@ -133,7 +136,7 @@ void booking(Book book[], int *booknum, char user[50]) {
         }
     }
 
-    strcpy(book[*booknum].name, user);
+    strcpy(book[*booknum].name, nama);
     book[*booknum].time = value;
     book[*booknum].room = roomChoice;
     (*booknum)++;
@@ -152,9 +155,10 @@ void booking(Book book[], int *booknum, char user[50]) {
     printf("Booking successfully added!\n");
 }
 
-void bookcancel(Book book[], int *booknum, char user[50]){
+void bookcancel(Book book[], int *booknum){
     int month, day, hour, minute, value, roomChoice;
     int found = 0;
+    char nama[50];
 
     printf("Month: ");
     scanf("%d", &month);
@@ -164,6 +168,8 @@ void bookcancel(Book book[], int *booknum, char user[50]){
     scanf("%d", &hour);
     printf("Minute: ");
     scanf("%d", &minute);
+    printf("Name: ");
+    scanf(" %[^\n]", nama);
     printf("Select a Room:\n");
     printf("Select a Room:\n");
     printf("1. Gymnastic Room\n");
@@ -189,7 +195,7 @@ void bookcancel(Book book[], int *booknum, char user[50]){
     file = fopen("bookA.txt", "w");
 
     for (int i = 0; i < *booknum; i++) {
-        if (strcmp(book[i].name, user) == 0 && book[i].room == roomChoice && book[i].time == value) {
+        if (strcmp(book[i].name, nama) == 0 && book[i].room == roomChoice && book[i].time == value) {
             found = 1;
             continue;
         }
@@ -237,82 +243,6 @@ void displayQueue(Queue *q) {
         printf("--------------------\n");
         i = (i + 1) % 5;
     }
-}
-
-void modifyAccount(Account accounts[], int jumlahData, char user[]) {
-    int index = -1;
-
-    for (int i = 0; i < jumlahData; i++) {
-        if (strcmp(accounts[i].username, user) == 0) {
-            index = i;
-            break;
-        }
-    }
-
-    if (index == -1) {
-        printf("Error: Account not found!\n");
-        return;
-    }
-
-    int choice;
-    printf("\n============= Modify Account Details ===============\n");
-    printf("1. Change Password\n");
-    printf("2. Change Birthdate\n");
-    printf("3. Change Phone Number\n");
-    printf("4. Change Email\n");
-    printf("5. Change City\n");
-    printf("6. Cancel\n");
-    while (1) {
-        printf("Choose an option: ");
-        if (scanf("%d", &choice) == 1) {
-            break;
-        } else {
-            printf("Invalid input! Please enter a valid number.\n");
-            while (getchar() != '\n');
-        }
-    }
-
-    switch (choice) {
-        case 1:
-            printf("Enter new password: ");
-            scanf("%s", accounts[index].password);
-            break;
-        case 2:
-            printf("Enter new birthdate (DD MM YYYY): ");
-            scanf("%d %d %d", &accounts[index].day, &accounts[index].month, &accounts[index].year);
-            break;
-        case 3:
-            printf("Enter new phone number: ");
-            scanf("%s", accounts[index].phoneNum);
-            break;
-        case 4:
-            printf("Enter new email: ");
-            scanf("%s", accounts[index].email);
-            break;
-        case 5:
-            printf("Enter new city: ");
-            scanf("%s", accounts[index].city);
-            break;
-        case 6:
-            printf("Modification canceled.\n");
-            return;
-        default:
-            printf("Invalid choice!\n");
-            return;
-    }
-
-    FILE *file = fopen("accA.txt", "w");
-    if (!file) {
-        printf("Error: Unable to update account file!\n");
-        return;
-    }
-
-    for (int i = 0; i < jumlahData; i++) {
-        fprintf(file, "%s#%s#%d#%d#%d#%s#%s#%s\n", accounts[i].username, accounts[i].password, accounts[i].day, accounts[i].month, accounts[i].year, accounts[i].phoneNum, accounts[i].email, accounts[i].city);
-    }
-    fclose(file);
-
-    printf("Account details successfully updated!\n");
 }
 
 void initWorkoutQueue(WorkoutQueue *q) {
@@ -891,16 +821,15 @@ int main(){
             printf("2. Login History\n");
             printf("3. Delete Login History\n");
             printf("4. Account Details\n");
-            printf("5. Edit Account Details\n");
-            printf("6. Plan Workout\n");
-            printf("7. Track Workout\n");
-            printf("8. Unfinished Workouts\n");
-            printf("9. Workout History\n");
-            printf("10. Leaderboards\n");
-            printf("11. Book a room\n");
-            printf("12. Cancel room booking\n");
-            printf("13. Book a Trainer\n");
-            printf("14. Exit\n");
+            printf("5. Plan Workout\n");
+            printf("6. Track Workout\n");
+            printf("7. Unfinished Workouts\n");
+            printf("8. Workout History\n");
+            printf("9. Leaderboards\n");
+            printf("10. Book a room\n");
+            printf("11. Cancel room booking\n");
+            printf("12. Book a Trainer\n");
+            printf("13. Exit\n");
             while (1) {
                 printf("Choice: ");
                 if (scanf("%d", &picks) == 1) {
@@ -1127,372 +1056,368 @@ int main(){
                             }
                         } else {
                             if (picks == 5){
-                                modifyAccount(accounts, jumlahData, user);
+                                int workoutChoice;
+                                do {
+                                    printf("\n=== Plan Workout ===\n");
+                                    printf("Current Planned Workouts:\n");
+                                    for (int i = 0; i < jumlahData; i++) {
+                                        if (strcmp(accounts[i].username, user) == 0) {
+                                            if (accounts[i].plannedWorkouts.front == -1) {
+                                                printf("None\n");
+                                            } else {
+                                                int j = accounts[i].plannedWorkouts.front;
+                                                while (1) {
+                                                    printf("- %s\n", exerciseName(accounts[i].plannedWorkouts.items[j]));
+                                                    if (j == accounts[i].plannedWorkouts.rear) break;
+                                                    j = (j + 1) % 50;
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    printf("\nExercise Types:\n");
+                                    for (int ex = 1; ex <= 14; ex++) {
+                                        printf("%2d. %s\n", ex, exerciseName(ex));
+                                    }
+                                    printf(" 15. Finish planning!\n");
+                                    printf("Choose exercise: ");
+                                    if (scanf("%d", &workoutChoice) != 1) {
+                                        while(getchar() != '\n');
+                                        continue;
+                                    }
+                                    while(getchar() != '\n');
+                                    if (workoutChoice == 15) {
+                                        break;
+                                    }
+                                    if (workoutChoice < 1 || workoutChoice > 14) {
+                                        printf("Invalid choice!\n");
+                                        continue;
+                                    }
+                                    int duplicate = 0;
+                                    for (int i = 0; i < jumlahData; i++) {
+                                        if (strcmp(accounts[i].username, user) == 0) {
+                                            if (accounts[i].plannedWorkouts.front != -1) {
+                                                int j = accounts[i].plannedWorkouts.front;
+                                                do {
+                                                    if (accounts[i].plannedWorkouts.items[j] == workoutChoice) {
+                                                        duplicate = 1;
+                                                        break;
+                                                    }
+                                                    if (j == accounts[i].plannedWorkouts.rear) {
+                                                        break;
+                                                    }
+                                                    j = (j + 1) % 50;
+                                                } while (1);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    if (duplicate) {
+                                        printf("%s is already in your plan!\n", exerciseName(workoutChoice));
+                                        continue;
+                                    }
+                                    for (int i = 0; i < jumlahData; i++) {
+                                        if (strcmp(accounts[i].username, user) == 0) {
+                                            enqueueWorkout(&accounts[i].plannedWorkouts, workoutChoice);
+                                            saveAccounts(accounts, jumlahData);
+                                            printf("%s added!\n", exerciseName(workoutChoice));
+                                            break;
+                                        }
+                                    }
+                                } while(1);
                             } else {
-                                if (picks == 6){
-                                    int workoutChoice;
-                                    do {
-                                        printf("\n=== Plan Workout ===\n");
-                                        printf("Current Planned Workouts:\n");
+                                if (picks == 6) {
+                                    for (int i = 0; i < jumlahData; i++) {
+                                        if (strcmp(accounts[i].username, user) == 0) {
+                                            int tracking = 1;
+                                            while (tracking) {
+                                                printf("\n=== Track Workout ===\n");
+                                                if (accounts[i].plannedWorkouts.front == -1) {
+                                                    printf("No workouts to track!\n");
+                                                    break;
+                                                }
+                                                int pos = 1;
+                                                int current = accounts[i].plannedWorkouts.front;
+                                                int validExercises[50];
+                                                int validIndexes[50];
+                                                int validCount = 0;
+
+                                                while (1) {
+                                                    if (current == -1) {
+                                                        break;
+                                                    }
+                                                    validExercises[validCount] = accounts[i].plannedWorkouts.items[current];
+                                                    validIndexes[validCount] = current;
+                                                    printf("%2d. %s\n", pos, exerciseName(validExercises[validCount]));
+                                                    validCount++;
+                                                    pos++;
+                                                    if (current == accounts[i].plannedWorkouts.rear) {
+                                                        break;
+                                                    }
+                                                    current = (current + 1) % 50;
+                                                }
+                                                printf("\n0. Finish tracking\n");
+                                                printf("Enter workout entry to track: ");
+                                                int trackChoice;
+                                                scanf("%d", &trackChoice);
+
+                                                if (trackChoice == 0) {
+                                                    tracking = 0;
+                                                } else if (trackChoice > 0 && trackChoice <= validCount) {
+                                                    int targetIndex = validIndexes[trackChoice-1];
+                                                    ExerciseType ex = accounts[i].plannedWorkouts.items[targetIndex];
+
+                                                    if (targetIndex == accounts[i].plannedWorkouts.front) {
+                                                        dequeueWorkout(&accounts[i].plannedWorkouts);
+                                                    } else {
+                                                        int prev = accounts[i].plannedWorkouts.front;
+                                                        while (prev != targetIndex) {
+                                                            prev = (prev + 1) % 50;
+                                                        }
+                                                        int next = (targetIndex + 1) % 50;
+                                                        while (next != (accounts[i].plannedWorkouts.rear + 1) % 50) {
+                                                            accounts[i].plannedWorkouts.items[prev] = accounts[i].plannedWorkouts.items[next];
+                                                            prev = next;
+                                                            next = (next + 1) % 50;
+                                                        }
+                                                        accounts[i].plannedWorkouts.rear = (accounts[i].plannedWorkouts.rear - 1 + 50) % 50;
+                                                    }
+
+                                                    Workout w;
+                                                    w.exercise = ex;
+                                                    printf("Enter sets done: ");
+                                                    scanf("%d", &w.sets);
+                                                    printf("Enter reps done: ");
+                                                    scanf("%d", &w.reps);
+                                                    printf("Enter weight applied (kg): ");
+                                                    scanf("%f", &w.weight);
+
+                                                    addWorkout(&accounts[i].completedWorkouts, w);
+                                                    updatePR(&accounts[i], w);
+                                                    saveAccounts(accounts, jumlahData);
+                                                    printf("%s tracked successfully!\n", exerciseName(ex));
+                                                } else {
+                                                printf("Invalid selection!\n");
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    if (picks == 7) {
+                                        printf("\n=== Unfinished Workouts ===\n");
                                         for (int i = 0; i < jumlahData; i++) {
                                             if (strcmp(accounts[i].username, user) == 0) {
                                                 if (accounts[i].plannedWorkouts.front == -1) {
-                                                    printf("None\n");
-                                                } else {
-                                                    int j = accounts[i].plannedWorkouts.front;
-                                                    while (1) {
-                                                        printf("- %s\n", exerciseName(accounts[i].plannedWorkouts.items[j]));
-                                                        if (j == accounts[i].plannedWorkouts.rear) break;
-                                                        j = (j + 1) % 50;
-                                                    }
+                                                    printf("No planned workouts!\n");
+                                                    break;
                                                 }
-                                                break;
-                                            }
-                                        }
-                                        printf("\nExercise Types:\n");
-                                        for (int ex = 1; ex <= 14; ex++) {
-                                            printf("%2d. %s\n", ex, exerciseName(ex));
-                                        }
-                                        printf(" 15. Finish planning!\n");
-                                        printf("Choose exercise: ");
-                                        if (scanf("%d", &workoutChoice) != 1) {
-                                            while(getchar() != '\n');
-                                            continue;
-                                        }
-                                        while(getchar() != '\n');
-                                        if (workoutChoice == 15) {
-                                            break;
-                                        }
-                                        if (workoutChoice < 1 || workoutChoice > 14) {
-                                            printf("Invalid choice!\n");
-                                            continue;
-                                        }
-                                        int duplicate = 0;
-                                        for (int i = 0; i < jumlahData; i++) {
-                                            if (strcmp(accounts[i].username, user) == 0) {
-                                                if (accounts[i].plannedWorkouts.front != -1) {
-                                                    int j = accounts[i].plannedWorkouts.front;
-                                                    do {
-                                                        if (accounts[i].plannedWorkouts.items[j] == workoutChoice) {
-                                                            duplicate = 1;
-                                                            break;
-                                                        }
-                                                        if (j == accounts[i].plannedWorkouts.rear) {
-                                                            break;
-                                                        }
-                                                        j = (j + 1) % 50;
-                                                    } while (1);
-                                                }
-                                                break;
-                                            }
-                                        }
-                                        if (duplicate) {
-                                            printf("%s is already in your plan!\n", exerciseName(workoutChoice));
-                                            continue;
-                                        }
-                                        for (int i = 0; i < jumlahData; i++) {
-                                            if (strcmp(accounts[i].username, user) == 0) {
-                                                enqueueWorkout(&accounts[i].plannedWorkouts, workoutChoice);
-                                                saveAccounts(accounts, jumlahData);
-                                                printf("%s added!\n", exerciseName(workoutChoice));
-                                                break;
-                                            }
-                                        }
-                                    } while(1);
-                                } else {
-                                    if (picks == 7) {
-                                        for (int i = 0; i < jumlahData; i++) {
-                                            if (strcmp(accounts[i].username, user) == 0) {
-                                                int tracking = 1;
-                                                while (tracking) {
-                                                    printf("\n=== Track Workout ===\n");
-                                                    if (accounts[i].plannedWorkouts.front == -1) {
-                                                        printf("No workouts to track!\n");
-                                                        break;
-                                                    }
-                                                    int pos = 1;
-                                                    int current = accounts[i].plannedWorkouts.front;
-                                                    int validExercises[50];
-                                                    int validIndexes[50];
-                                                    int validCount = 0;
-
-                                                    while (1) {
-                                                        if (current == -1) {
-                                                            break;
-                                                        }
+                                                int pos = 1;
+                                                int current = accounts[i].plannedWorkouts.front;
+                                                int validExercises[50];
+                                                int validIndexes[50];
+                                                int validCount = 0;
+                                                while(1) {
+                                                    if (accounts[i].plannedWorkouts.items[current] >= 1) {
                                                         validExercises[validCount] = accounts[i].plannedWorkouts.items[current];
                                                         validIndexes[validCount] = current;
                                                         printf("%2d. %s\n", pos, exerciseName(validExercises[validCount]));
                                                         validCount++;
                                                         pos++;
-                                                        if (current == accounts[i].plannedWorkouts.rear) {
-                                                            break;
-                                                        }
-                                                        current = (current + 1) % 50;
                                                     }
-                                                    printf("\n0. Finish tracking\n");
-                                                    printf("Enter workout entry to track: ");
-                                                    int trackChoice;
-                                                    scanf("%d", &trackChoice);
-
-                                                    if (trackChoice == 0) {
-                                                        tracking = 0;
-                                                    } else if (trackChoice > 0 && trackChoice <= validCount) {
-                                                        int targetIndex = validIndexes[trackChoice-1];
-                                                        ExerciseType ex = accounts[i].plannedWorkouts.items[targetIndex];
-
-                                                        if (targetIndex == accounts[i].plannedWorkouts.front) {
-                                                            dequeueWorkout(&accounts[i].plannedWorkouts);
+                                                    if (current == accounts[i].plannedWorkouts.rear) {
+                                                        break;
+                                                    }
+                                                    current = (current + 1) % 50;
+                                                }
+                                                if (validCount == 0) {
+                                                    printf("No valid workouts!\n");
+                                                    break;
+                                                }
+                                                printf("\nEnter 0 to finish viewing or...\nEnter an entry's number to delete: ");
+                                                int delChoice;
+                                                if (scanf("%d", &delChoice) == 1 && delChoice > 0 && delChoice <= validCount) {
+                                                    int targetIndex = validIndexes[delChoice-1];
+                                                    int newFront = accounts[i].plannedWorkouts.front;
+                                                    int newRear = accounts[i].plannedWorkouts.rear;
+                                                    if (targetIndex == newFront) {
+                                                        if (newFront == newRear) {
+                                                            newFront = newRear = -1;
                                                         } else {
-                                                            int prev = accounts[i].plannedWorkouts.front;
-                                                            while (prev != targetIndex) {
-                                                                prev = (prev + 1) % 50;
-                                                            }
-                                                            int next = (targetIndex + 1) % 50;
-                                                            while (next != (accounts[i].plannedWorkouts.rear + 1) % 50) {
-                                                                accounts[i].plannedWorkouts.items[prev] = accounts[i].plannedWorkouts.items[next];
-                                                                prev = next;
-                                                                next = (next + 1) % 50;
-                                                            }
-                                                            accounts[i].plannedWorkouts.rear = (accounts[i].plannedWorkouts.rear - 1 + 50) % 50;
+                                                            newFront = (newFront + 1) % 50;
                                                         }
-
-                                                        Workout w;
-                                                        w.exercise = ex;
-                                                        printf("Enter sets done: ");
-                                                        scanf("%d", &w.sets);
-                                                        printf("Enter reps done: ");
-                                                        scanf("%d", &w.reps);
-                                                        printf("Enter weight applied (kg): ");
-                                                        scanf("%f", &w.weight);
-
-                                                        addWorkout(&accounts[i].completedWorkouts, w);
-                                                        updatePR(&accounts[i], w);
-                                                        saveAccounts(accounts, jumlahData);
-                                                        printf("%s tracked successfully!\n", exerciseName(ex));
                                                     } else {
-                                                    printf("Invalid selection!\n");
+                                                        int prev = newFront;
+                                                        while (prev != targetIndex) {
+                                                            prev = (prev + 1) % 50;
+                                                        }
+                                                        int next = (targetIndex + 1) % 50;
+                                                        while (next != (newRear + 1) % 50) {
+                                                            accounts[i].plannedWorkouts.items[prev] = accounts[i].plannedWorkouts.items[next];
+                                                            prev = next;
+                                                            next = (next + 1) % 50;
+                                                        }
+                                                        newRear = (newRear - 1 + 50) % 50;
                                                     }
+                                                    accounts[i].plannedWorkouts.front = newFront;
+                                                    accounts[i].plannedWorkouts.rear = newRear;
+                                                    saveAccounts(accounts, jumlahData);
+                                                    printf("Workout deleted successfully!\n");
                                                 }
                                                 break;
                                             }
                                         }
                                     } else {
                                         if (picks == 8) {
-                                            printf("\n=== Unfinished Workouts ===\n");
+                                            printf("\n=== Workout History ===\n");
                                             for (int i = 0; i < jumlahData; i++) {
                                                 if (strcmp(accounts[i].username, user) == 0) {
-                                                    if (accounts[i].plannedWorkouts.front == -1) {
-                                                        printf("No planned workouts!\n");
-                                                        break;
-                                                    }
-                                                    int pos = 1;
-                                                    int current = accounts[i].plannedWorkouts.front;
-                                                    int validExercises[50];
-                                                    int validIndexes[50];
-                                                    int validCount = 0;
-                                                    while(1) {
-                                                        if (accounts[i].plannedWorkouts.items[current] >= 1) {
-                                                            validExercises[validCount] = accounts[i].plannedWorkouts.items[current];
-                                                            validIndexes[validCount] = current;
-                                                            printf("%2d. %s\n", pos, exerciseName(validExercises[validCount]));
-                                                            validCount++;
-                                                            pos++;
+                                                    if (accounts[i].completedWorkouts.top == -1) {
+                                                        printf("No completed workouts yet!\n");
+                                                    } else {
+                                                        printf("|%-4s|%-15s|%-6s|%-6s|%-8s\n", "No.", "Exercise", "Sets", "Reps", "Weight");
+                                                        for (int j = 0; j <= accounts[i].completedWorkouts.top; j++) {
+                                                            printf("|%-4d|%-15s|%-6d|%-6d|%-8.1fkg\n", j+1, exerciseName(accounts[i].completedWorkouts.items[j].exercise), accounts[i].completedWorkouts.items[j].sets, accounts[i].completedWorkouts.items[j].reps, accounts[i].completedWorkouts.items[j].weight);
                                                         }
-                                                        if (current == accounts[i].plannedWorkouts.rear) {
-                                                            break;
-                                                        }
-                                                        current = (current + 1) % 50;
-                                                    }
-                                                    if (validCount == 0) {
-                                                        printf("No valid workouts!\n");
-                                                        break;
-                                                    }
-                                                    printf("\nEnter 0 to finish viewing or...\nEnter an entry's number to delete: ");
-                                                    int delChoice;
-                                                    if (scanf("%d", &delChoice) == 1 && delChoice > 0 && delChoice <= validCount) {
-                                                        int targetIndex = validIndexes[delChoice-1];
-                                                        int newFront = accounts[i].plannedWorkouts.front;
-                                                        int newRear = accounts[i].plannedWorkouts.rear;
-                                                        if (targetIndex == newFront) {
-                                                            if (newFront == newRear) {
-                                                                newFront = newRear = -1;
-                                                            } else {
-                                                                newFront = (newFront + 1) % 50;
-                                                            }
-                                                        } else {
-                                                            int prev = newFront;
-                                                            while (prev != targetIndex) {
-                                                                prev = (prev + 1) % 50;
-                                                            }
-                                                            int next = (targetIndex + 1) % 50;
-                                                            while (next != (newRear + 1) % 50) {
-                                                                accounts[i].plannedWorkouts.items[prev] = accounts[i].plannedWorkouts.items[next];
-                                                                prev = next;
-                                                                next = (next + 1) % 50;
-                                                            }
-                                                            newRear = (newRear - 1 + 50) % 50;
-                                                        }
-                                                        accounts[i].plannedWorkouts.front = newFront;
-                                                        accounts[i].plannedWorkouts.rear = newRear;
-                                                        saveAccounts(accounts, jumlahData);
-                                                        printf("Workout deleted successfully!\n");
                                                     }
                                                     break;
                                                 }
                                             }
                                         } else {
                                             if (picks == 9) {
-                                                printf("\n=== Workout History ===\n");
-                                                for (int i = 0; i < jumlahData; i++) {
-                                                    if (strcmp(accounts[i].username, user) == 0) {
-                                                        if (accounts[i].completedWorkouts.top == -1) {
-                                                            printf("No completed workouts yet!\n");
-                                                        } else {
-                                                            printf("|%-4s|%-15s|%-6s|%-6s|%-8s\n", "No.", "Exercise", "Sets", "Reps", "Weight");
-                                                            for (int j = 0; j <= accounts[i].completedWorkouts.top; j++) {
-                                                                printf("|%-4d|%-15s|%-6d|%-6d|%-8.1fkg\n", j+1, exerciseName(accounts[i].completedWorkouts.items[j].exercise), accounts[i].completedWorkouts.items[j].sets, accounts[i].completedWorkouts.items[j].reps, accounts[i].completedWorkouts.items[j].weight);
+                                                int leaderChoice;
+                                                showLeaderboardHeader("   THE GRAND FITNESS LEADERBOARDS");
+                                                printf("1. Top Total Workouts!!!\n");
+                                                printf("2. Top PR Records!!!\n");
+                                                printf("3. Return to Main Menu\n");
+
+                                                while(1) {
+                                                    printf("\nChoose leaderboard type: ");
+                                                    if (scanf("%d", &leaderChoice) == 1) {
+                                                        if (leaderChoice >=1 && leaderChoice <=3) break;
+                                                    }
+                                                    printf("Please enter a valid choice!\n");
+                                                    while(getchar() != '\n');
+                                                }
+
+                                                if (leaderChoice == 1) {
+                                                    FitnessChampion champions[100];
+                                                    int champCount = 0;
+
+                                                    for (int i = 0; i < jumlahData; i++) {
+                                                        int total = accounts[i].completedWorkouts.top + 1;
+                                                        if (total > 0) {
+                                                            strcpy(champions[champCount].username, accounts[i].username);
+                                                            champions[champCount].totalWorkouts = total;
+                                                            champCount++;
+                                                        }
+                                                    }
+
+                                                    if (champCount == 0) {
+                                                        showLeaderboardHeader("No Workouts Recorded Yet...");
+                                                        printf("Be the first to complete a workout!!!\n");
+                                                        continue;
+                                                    }
+
+                                                    for (int i = 0; i < champCount - 1; i++) {
+                                                        for (int j = 0; j < champCount - i - 1; j++) {
+                                                            if (champions[j].totalWorkouts < champions[j+1].totalWorkouts) {
+                                                                FitnessChampion temp = champions[j];
+                                                                champions[j] = champions[j+1];
+                                                                champions[j+1] = temp;
                                                             }
                                                         }
-                                                        break;
                                                     }
-                                                }
-                                            } else {
-                                                if (picks == 10) {
-                                                    int leaderChoice;
-                                                    showLeaderboardHeader("   THE GRAND FITNESS LEADERBOARDS");
-                                                    printf("1. Top Total Workouts!!!\n");
-                                                    printf("2. Top PR Records!!!\n");
-                                                    printf("3. Return to Main Menu\n");
+                                                    showLeaderboardHeader("Top 10 GOATs - Grinders of All Time!");
+                                                    printf("%-4s %-20s %-15s\n", "Rank", "Username", "Workouts Completed");
+                                                    for (int i = 0; i < (champCount > 10 ? 10 : champCount); i++) {
+                                                        printf("%-4d %-20s %-15d\n", i+1, champions[i].username, champions[i].totalWorkouts);
+                                                    }
+                                                } else if(leaderChoice == 2) {
+                                                    int exerciseChoice;
+                                                    showExerciseChoices();
 
                                                     while(1) {
-                                                        printf("\nChoose leaderboard type: ");
-                                                        if (scanf("%d", &leaderChoice) == 1) {
-                                                            if (leaderChoice >=1 && leaderChoice <=3) break;
+                                                        printf("\nYour choice: ");
+                                                        if (scanf("%d", &exerciseChoice) == 1) {
+                                                            if (exerciseChoice >=1 && exerciseChoice <=8) {
+                                                                break;
+                                                            }
                                                         }
                                                         printf("Please enter a valid choice!\n");
                                                         while(getchar() != '\n');
                                                     }
+                                                    if (exerciseChoice == 8) {
+                                                        continue;
+                                                    }
+                                                    StrengthRecord records[100];
+                                                    int recordCount = 0;
+                                                    ExerciseType targetExercise = benchPR + (exerciseChoice - 1);
 
-                                                    if (leaderChoice == 1) {
-                                                        FitnessChampion champions[100];
-                                                        int champCount = 0;
+                                                    for (int i = 0; i < jumlahData; i++) {
+                                                        PR *pr = &accounts[i].personalRecords[exerciseChoice-1];
+                                                        if(pr->maxWeight > 0 || pr->maxSets > 0 || pr->maxReps > 0) {
+                                                            strcpy(records[recordCount].username, accounts[i].username);
+                                                            records[recordCount].bestWeight = pr->maxWeight;
+                                                            records[recordCount].bestSets = pr->maxSets;
+                                                            records[recordCount].bestReps = pr->maxReps;
+                                                            recordCount++;
+                                                        }
+                                                    }
+                                                    if (recordCount == 0) {
+                                                        showLeaderboardHeader("No Records Yet!");
+                                                        printf("This thing needs its first champion!\n");
+                                                        continue;
+                                                    }
 
-                                                        for (int i = 0; i < jumlahData; i++) {
-                                                            int total = accounts[i].completedWorkouts.top + 1;
-                                                            if (total > 0) {
-                                                                strcpy(champions[champCount].username, accounts[i].username);
-                                                                champions[champCount].totalWorkouts = total;
-                                                                champCount++;
-                                                            }
-                                                        }
-
-                                                        if (champCount == 0) {
-                                                            showLeaderboardHeader("No Workouts Recorded Yet...");
-                                                            printf("Be the first to complete a workout!!!\n");
-                                                            continue;
-                                                        }
-
-                                                        for (int i = 0; i < champCount - 1; i++) {
-                                                            for (int j = 0; j < champCount - i - 1; j++) {
-                                                                if (champions[j].totalWorkouts < champions[j+1].totalWorkouts) {
-                                                                    FitnessChampion temp = champions[j];
-                                                                    champions[j] = champions[j+1];
-                                                                    champions[j+1] = temp;
-                                                                }
-                                                            }
-                                                        }
-                                                        showLeaderboardHeader("Top 10 GOATs - Grinders of All Time!");
-                                                        printf("%-4s %-20s %-15s\n", "Rank", "Username", "Workouts Completed");
-                                                        for (int i = 0; i < (champCount > 10 ? 10 : champCount); i++) {
-                                                            printf("%-4d %-20s %-15d\n", i+1, champions[i].username, champions[i].totalWorkouts);
-                                                        }
-                                                    } else if(leaderChoice == 2) {
-                                                        int exerciseChoice;
-                                                        showExerciseChoices();
-
-                                                        while(1) {
-                                                            printf("\nYour choice: ");
-                                                            if (scanf("%d", &exerciseChoice) == 1) {
-                                                                if (exerciseChoice >=1 && exerciseChoice <=8) {
-                                                                    break;
-                                                                }
-                                                            }
-                                                            printf("Please enter a valid choice!\n");
-                                                            while(getchar() != '\n');
-                                                        }
-                                                        if (exerciseChoice == 8) {
-                                                            continue;
-                                                        }
-                                                        StrengthRecord records[100];
-                                                        int recordCount = 0;
-                                                        ExerciseType targetExercise = benchPR + (exerciseChoice - 1);
-
-                                                        for (int i = 0; i < jumlahData; i++) {
-                                                            PR *pr = &accounts[i].personalRecords[exerciseChoice-1];
-                                                            if(pr->maxWeight > 0 || pr->maxSets > 0 || pr->maxReps > 0) {
-                                                                strcpy(records[recordCount].username, accounts[i].username);
-                                                                records[recordCount].bestWeight = pr->maxWeight;
-                                                                records[recordCount].bestSets = pr->maxSets;
-                                                                records[recordCount].bestReps = pr->maxReps;
-                                                                recordCount++;
-                                                            }
-                                                        }
-                                                        if (recordCount == 0) {
-                                                            showLeaderboardHeader("No Records Yet!");
-                                                            printf("This thing needs its first champion!\n");
-                                                            continue;
-                                                        }
-
-                                                        for (int i = 0; i < recordCount - 1; i++) {
-                                                            for (int j = 0; j < recordCount - i - 1; j++) {
-                                                                int swap = 0;
-                                                                if (records[j].bestWeight < records[j+1].bestWeight) {
+                                                    for (int i = 0; i < recordCount - 1; i++) {
+                                                        for (int j = 0; j < recordCount - i - 1; j++) {
+                                                            int swap = 0;
+                                                            if (records[j].bestWeight < records[j+1].bestWeight) {
+                                                                swap = 1;
+                                                            } else if (records[j].bestWeight == records[j+1].bestWeight) {
+                                                                if (records[j].bestSets < records[j+1].bestSets) {
                                                                     swap = 1;
-                                                                } else if (records[j].bestWeight == records[j+1].bestWeight) {
-                                                                    if (records[j].bestSets < records[j+1].bestSets) {
+                                                                } else if (records[j].bestSets == records[j+1].bestSets) {
+                                                                    if (records[j].bestReps < records[j+1].bestReps) {
                                                                         swap = 1;
-                                                                    } else if (records[j].bestSets == records[j+1].bestSets) {
-                                                                        if (records[j].bestReps < records[j+1].bestReps) {
-                                                                            swap = 1;
-                                                                        }
                                                                     }
                                                                 }
-                                                                if (swap) {
-                                                                    StrengthRecord temp = records[j];
-                                                                    records[j] = records[j+1];
-                                                                    records[j+1] = temp;
-                                                                }
+                                                            }
+                                                            if (swap) {
+                                                                StrengthRecord temp = records[j];
+                                                                records[j] = records[j+1];
+                                                                records[j+1] = temp;
                                                             }
                                                         }
-                                                        showLeaderboardHeader(exerciseName(targetExercise));
-                                                        printf("%-4s %-20s %-8s %-6s %-6s\n", "Rank", "Username", "Weight", "Sets", "Reps");
-                                                        for (int i = 0; i < recordCount; i++) {
-                                                            printf("%-4d %-20s %-8.1f %-6d %-6d\n", i+1, records[i].username, records[i].bestWeight, records[i].bestSets,  records[i].bestReps);
-                                                        }
+                                                    }
+                                                    showLeaderboardHeader(exerciseName(targetExercise));
+                                                    printf("%-4s %-20s %-8s %-6s %-6s\n", "Rank", "Username", "Weight", "Sets", "Reps");
+                                                    for (int i = 0; i < recordCount; i++) {
+                                                        printf("%-4d %-20s %-8.1f %-6d %-6d\n", i+1, records[i].username, records[i].bestWeight, records[i].bestSets,  records[i].bestReps);
+                                                    }
+                                                }
+                                            } else {
+                                                if (picks == 10) {
+                                                    while(1){
+                                                        booking(book, &booknum);
+                                                        break;
                                                     }
                                                 } else {
                                                     if (picks == 11) {
                                                         while(1){
-                                                            booking(book, &booknum, user);
+                                                            bookcancel(book, &booknum);
                                                             break;
                                                         }
                                                     } else {
                                                         if (picks == 12) {
-                                                            while(1){
-                                                                bookcancel(book, &booknum, user);
-                                                                break;
-                                                            }
+                                                            trainerMenu(user);
                                                         } else {
                                                             if (picks == 13) {
-                                                                trainerMenu(user);
+                                                                printf("Program Exiting...");
+                                                                break;
                                                             } else {
-                                                                if (picks == 14) {
-                                                                    printf("Program Exiting...");
-                                                                    break;
-                                                                } else {
-                                                                    printf("Invalid input, please try again...\n\n");
-                                                                }
+                                                                printf("Invalid input, please try again...\n\n");
                                                             }
                                                         }
                                                     }
