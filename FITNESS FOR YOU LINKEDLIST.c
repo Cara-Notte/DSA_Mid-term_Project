@@ -1019,6 +1019,7 @@ int main(){
                         if (strcmp(node->username, user) == 0 && strcmp(node->password, pass) == 0) {
                             isValid = 1;
                             enqueue(&loginQueue, user, node->city);
+                            currentAccount = node;
                             break;
                         }
                         node = node->next;
@@ -1215,7 +1216,7 @@ int main(){
                                 printf("Error: Account not found!\n");
                             }
                         } else {
-                            if (picks == 6){
+                            if (picks == 5){
                                 int workoutChoice;
                                 do {
                                     printf("\n=== Plan Workout ===\n");
@@ -1266,7 +1267,7 @@ int main(){
                                     printf("%s added!\n", exerciseName(workoutChoice));
                                 } while(1);
                             } else {
-                                if(picks == 7){
+                                if(picks == 6){
                                     int tracking = 1;
                                     while (tracking) {
                                         printf("\n=== Track Workout ===\n");
@@ -1337,7 +1338,7 @@ int main(){
                                         }
                                     }
                                 }else{
-                                    if(picks==8){
+                                    if(picks==7){
                                             int choice;
                                         do {
                                             printf("\n=== Unfinished Workouts ===\n");
@@ -1383,7 +1384,7 @@ int main(){
                                             }
                                         } while (1);
                                     }else{
-                                        if(picks==9){
+                                        if(picks==8){
                                             int choice;
                                             do {
                                                 printf("\n=== Unfinished Workouts ===\n");
@@ -1430,7 +1431,7 @@ int main(){
                                             } while (1);
 
                                         }else{
-                                            if(picks==10){
+                                            if(picks==9){
                                                     int leaderChoice;
                                                 showLeaderboardHeader("   THE GRAND FITNESS LEADERBOARDS");
                                                 printf("1. Top Total Workouts!!!\n");
@@ -1540,19 +1541,19 @@ int main(){
                                                 }
 
                                             }else{
-                                                if(picks==11){
+                                                if(picks==10){
                                                     booking(&kepala, &buntut, user);
                                                     bookingfree(&kepala, &buntut);
 
                                                 }else{
-                                                    if(picks==12){
+                                                    if(picks==11){
                                                         bookcancel(&kepala, &buntut, user);
                                                         bookingfree(&kepala, &buntut);
                                                     }else{
-                                                        if(picks==13){
+                                                        if(picks==12){
                                                             trainerMenu(user);
                                                         }else{
-                                                            if(picks==14){
+                                                            if(picks==13){
                                                                 freeAccounts(head);
                                                                 printf("Program Exiting...");
                                                                 break;
@@ -1575,3 +1576,4 @@ int main(){
     }
     return 0;
 }
+
