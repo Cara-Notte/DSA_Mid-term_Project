@@ -1401,7 +1401,7 @@ int main(){
                                                 }
                                         }else{
                                             if(picks == 9){
-                                                    int leaderChoice;
+                                                int leaderChoice;
                                                 showLeaderboardHeader("   THE GRAND FITNESS LEADERBOARDS");
                                                 printf("1. Top Total Workouts!!!\n");
                                                 printf("2. Top PR Records!!!\n");
