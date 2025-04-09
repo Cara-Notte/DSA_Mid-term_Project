@@ -1338,7 +1338,7 @@ int main(){
                                         }
                                     }
                                 }else{
-                                    if(picks==7){
+                                    if(picks == 7){
                                             int choice;
                                         do {
                                             printf("\n=== Unfinished Workouts ===\n");
@@ -1384,54 +1384,23 @@ int main(){
                                             }
                                         } while (1);
                                     }else{
-                                        if(picks==8){
-                                            int choice;
-                                            do {
-                                                printf("\n=== Unfinished Workouts ===\n");
-                                                WorkoutQueue *current = currentAccount->plannedFront;
+                                        if (picks == 8) {
+                                                printf("\n=== Workout History ===\n");
+                                                WorkoutHistory *current = currentAccount->completedTop;
                                                 if (!current) {
-                                                    printf("No planned workouts!\n");
-                                                    break;
+                                                    printf("No completed workouts yet!\n");
                                                 }
-                                                int pos = 1;
-                                                while (current) {
-                                                    printf("%d. %s\n", pos++, exerciseName(current->exercise));
+                                                int counter = 1;
+                                                while(current) {
+                                                    if (current->workout.exercise >= bench && current->workout.exercise <= squatPR) {
+                                                        printf("|%-4d|%-15s|%-6d|%-6d|%-8.1fkg\n", counter++, exerciseName(current->workout.exercise), current->workout.sets, current->workout.reps, current->workout.weight);
+                                                    } else {
+                                                        printf("|%-4d|Invalid Entry (Skipped)\n", counter++);
+                                                    }
                                                     current = current->next;
                                                 }
-                                                printf("\nEnter 0 to finish viewing or...\nEnter an entry's number to delete: ");
-                                                if (scanf("%d", &choice) != 1) {
-                                                    while (getchar() != '\n');
-                                                    continue;
-                                                }
-                                                while (getchar() != '\n');
-
-                                                if (choice == 0) {
-                                                    break;
-                                                } else if (choice > 0) {
-                                                    WorkoutQueue *target = currentAccount->plannedFront;
-                                                    WorkoutQueue *prev = NULL;
-                                                    for (int i = 1; i < choice && target; i++) {
-                                                        prev = target;
-                                                        target = target->next;
-                                                    }
-                                                    if (target) {
-                                                        if (prev) {
-                                                            prev->next = target->next;
-                                                        } else {
-                                                            currentAccount->plannedFront = target->next;
-                                                        }
-                                                        if (!target->next) {
-                                                            currentAccount->plannedRear = prev;
-                                                        }
-                                                        free(target);
-                                                        saveAccounts(head);
-                                                        printf("Workout deleted successfully!\n");
-                                                    }
-                                                }
-                                            } while (1);
-
                                         }else{
-                                            if(picks==9){
+                                            if(picks == 9){
                                                     int leaderChoice;
                                                 showLeaderboardHeader("   THE GRAND FITNESS LEADERBOARDS");
                                                 printf("1. Top Total Workouts!!!\n");
@@ -1576,4 +1545,3 @@ int main(){
     }
     return 0;
 }
-
