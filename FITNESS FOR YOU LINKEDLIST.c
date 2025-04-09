@@ -163,75 +163,6 @@ void displayQueue(Queue *q) {
     }
 }
 
-void modifyAccount(Account *head, char user[]) {
-    Account *current = head;
-
-    while (current) {
-        if (strcmp(current->username, user) == 0) {
-            int choice;
-            printf("\n============= Modify Account Details ===============\n");
-            printf("1. Change Password\n");
-            printf("2. Change Birthdate\n");
-            printf("3. Change Phone Number\n");
-            printf("4. Change Email\n");
-            printf("5. Change City\n");
-            printf("6. Cancel\n");
-
-            printf("Choose an option: ");
-            scanf("%d", &choice);
-            getchar();
-
-            switch (choice) {
-                case 1:
-                    printf("Enter new password: ");
-                    scanf("%s", current->password);
-                    break;
-                case 2:
-                    printf("Enter new birthdate (DD MM YYYY): ");
-                    scanf("%d %d %d", &current->day, &current->month, &current->year);
-                    break;
-                case 3:
-                    printf("Enter new phone number: ");
-                    scanf(" %[^\n]", current->phoneNum);
-                    break;
-                case 4:
-                    printf("Enter new email: ");
-                    scanf(" %[^\n]", current->email);
-                    break;
-                case 5:
-                    printf("Enter new city: ");
-                    scanf(" %[^\n]", current->city);
-                    break;
-                case 6:
-                    printf("Modification canceled.\n");
-                    return;
-                default:
-                    printf("Invalid choice!\n");
-                    return;
-            }
-
-            FILE *file = fopen("accLL.txt", "w");
-            if (!file) {
-                printf("Error: Unable to update account file!\n");
-                return;
-            }
-
-            Account *temp = head;
-            while (temp) {
-                fprintf(file, "%s#%s#%d#%d#%d#%s#%s#%s\n", temp->username, temp->password, temp->day, temp->month, temp->year, temp->phoneNum, temp->email, temp->city);
-                temp = temp->next;
-            }
-            fclose(file);
-
-            printf("Account details successfully updated!\n");
-            return;
-        }
-        current = current->next;
-    }
-
-    printf("Error: Account not found!\n");
-}
-
 void booking(book **kepala, book **buntut, char user[50]) {
     int value, minute, hour, day, month, roomChoice, time, room;
 
@@ -1042,16 +973,15 @@ int main(){
             printf("2. Login History\n");
             printf("3. Delete Login History\n");
             printf("4. Account Details\n");
-            printf("5. Edit Account Details\n");
-            printf("6. Plan Workout\n");
-            printf("7. Track Workout\n");
-            printf("8. Unfinished Workouts\n");
-            printf("9. Workout History\n");
-            printf("10. Leaderboards\n");
-            printf("11. Book a room\n");
-            printf("12. Cancel room booking\n");
-            printf("13. Book a Trainer\n");
-            printf("14. Exit\n");
+            printf("5. Plan Workout\n");
+            printf("6. Track Workout\n");
+            printf("7. Unfinished Workouts\n");
+            printf("8. Workout History\n");
+            printf("9. Leaderboards\n");
+            printf("10. Book a room\n");
+            printf("11. Cancel room booking\n");
+            printf("12. Book a Trainer\n");
+            printf("13. Exit\n");
             while (1) {
                 printf("Choice: ");
                 if (scanf("%d", &picks) == 1) {
@@ -1285,133 +1215,176 @@ int main(){
                                 printf("Error: Account not found!\n");
                             }
                         } else {
-                            if (picks == 5){
-                                modifyAccount(head, user);
-                            } else {
-                                if (picks == 6){
-                                    int workoutChoice;
-                                    do {
-                                        printf("\n=== Plan Workout ===\n");
-                                        printf("Current Planned Workouts:\n");
-                                        WorkoutQueue *current = currentAccount->plannedFront;
-                                        if(!current) {
-                                            printf("None\n");
-                                        } else {
-                                            int pos = 1;
-                                            while(current) {
-                                            printf("%d. %s\n", pos++, exerciseName(current->exercise));
-                                            current = current->next;
-                                            }
+                            if (picks == 6){
+                                int workoutChoice;
+                                do {
+                                    printf("\n=== Plan Workout ===\n");
+                                    printf("Current Planned Workouts:\n");
+                                    WorkoutQueue *current = currentAccount->plannedFront;
+                                    if(!current) {
+                                        printf("None\n");
+                                    } else {
+                                        int pos = 1;
+                                        while(current) {
+                                        printf("%d. %s\n", pos++, exerciseName(current->exercise));
+                                        current = current->next;
                                         }
+                                    }
 
-                                        printf("\nExercise Types:\n");
-                                        for (int ex = 1; ex <= 14; ex++) {
-                                            printf("%2d. %s\n", ex, exerciseName(ex));
-                                        }
-                                        printf("15. Finish planning\nChoice: ");
-                                        if (scanf("%d", &workoutChoice) != 1) {
-                                            while(getchar() != '\n');
-                                            continue;
-                                        }
+                                    printf("\nExercise Types:\n");
+                                    for (int ex = 1; ex <= 14; ex++) {
+                                        printf("%2d. %s\n", ex, exerciseName(ex));
+                                    }
+                                    printf("15. Finish planning\nChoice: ");
+                                    if (scanf("%d", &workoutChoice) != 1) {
+                                        while(getchar() != '\n');
+                                        continue;
+                                    }
 
-                                        if (workoutChoice == 15) {
+                                    if (workoutChoice == 15) {
+                                        break;
+                                    }
+                                    if (workoutChoice < 1 || workoutChoice > 14) {
+                                        printf("Invalid choice!\n");
+                                        continue;
+                                    }
+
+                                    WorkoutQueue *check = currentAccount->plannedFront;
+                                    while (check) {
+                                        if (check->exercise == workoutChoice) {
+                                            printf("%s is already in your plan!", exerciseName(workoutChoice));
                                             break;
                                         }
-                                        if (workoutChoice < 1 || workoutChoice > 14) {
-                                            printf("Invalid choice!\n");
-                                            continue;
+                                        check = check->next;
+                                    }
+                                    if (check) {
+                                        continue;
+                                    }
+
+                                    enqueueWorkout(currentAccount, workoutChoice);
+                                    saveAccounts(head);
+                                    printf("%s added!\n", exerciseName(workoutChoice));
+                                } while(1);
+                            } else {
+                                if(picks == 7){
+                                    int tracking = 1;
+                                    while (tracking) {
+                                        printf("\n=== Track Workout ===\n");
+                                        WorkoutQueue *current = currentAccount->plannedFront;
+                                        if (!current) {
+                                            printf("No workouts to track!\n");
+                                            tracking = 0;
+                                            break;
                                         }
 
-                                        WorkoutQueue *check = currentAccount->plannedFront;
-                                        while (check) {
-                                            if (check->exercise == workoutChoice) {
-                                                printf("%s is already in your plan!", exerciseName(workoutChoice));
-                                                break;
-                                            }
-                                            check = check->next;
-                                        }
-                                        if (check) {
-                                            continue;
+                                        int pos = 1;
+                                        WorkoutQueue *nodes[50];
+                                        while (current) {
+                                            printf("%d. %s\n", pos, exerciseName(current->exercise));
+                                            nodes[pos-1] = current;
+                                            pos++;
+                                            current = current->next;
                                         }
 
-                                        enqueueWorkout(currentAccount, workoutChoice);
-                                        saveAccounts(head);
-                                        printf("%s added!\n", exerciseName(workoutChoice));
-                                    } while(1);
-                                } else {
-                                    if(picks == 7){
-                                        int tracking = 1;
-                                        while (tracking) {
-                                            printf("\n=== Track Workout ===\n");
-                                            WorkoutQueue *current = currentAccount->plannedFront;
-                                            if (!current) {
-                                                printf("No workouts to track!\n");
-                                                tracking = 0;
-                                                break;
-                                            }
+                                        printf("\n0. Finish tracking\n");
+                                        printf("Enter workout entry to track: ");
+                                        int choice;
+                                        scanf("%d", &choice);
+                                        getchar();
 
-                                            int pos = 1;
-                                            WorkoutQueue *nodes[50];
-                                            while (current) {
-                                                printf("%d. %s\n", pos, exerciseName(current->exercise));
-                                                nodes[pos-1] = current;
-                                                pos++;
-                                                current = current->next;
-                                            }
+                                        if (choice == 0) {
+                                            tracking = 0;
+                                            break;
+                                        }
 
-                                            printf("\n0. Finish tracking\n");
-                                            printf("Enter workout entry to track: ");
-                                            int choice;
-                                            scanf("%d", &choice);
+                                        if (choice > 0 && choice <= pos-1) {
+                                            WorkoutQueue *target = nodes[choice-1];
+                                            Workout newWorkout;
+                                            newWorkout.exercise = target->exercise;
+
+                                            printf("Enter sets done: ");
+                                            scanf("%d", &newWorkout.sets);
                                             getchar();
 
-                                            if (choice == 0) {
-                                                tracking = 0;
+                                            printf("Enter reps done: ");
+                                            scanf("%d", &newWorkout.reps);
+                                            getchar();
+
+                                            printf("Enter weight applied (kg): ");
+                                            scanf("%f", &newWorkout.weight);
+                                            getchar();
+
+                                            if (target == currentAccount->plannedFront) {
+                                                currentAccount->plannedFront = target->next;
+                                                if (!currentAccount->plannedFront) {
+                                                    currentAccount->plannedRear = NULL;
+                                                }
+                                            } else {
+                                                WorkoutQueue *prev = currentAccount->plannedFront;
+                                                while (prev->next != target) {
+                                                    prev = prev->next;
+                                                }
+                                                prev->next = target->next;
+                                                if (target == currentAccount->plannedRear) {
+                                                    currentAccount->plannedRear = prev;
+                                                }
+                                            }
+                                            free(target);
+                                            addWorkout(currentAccount, newWorkout);
+                                            updatePR(currentAccount, newWorkout);
+                                            saveAccounts(head);
+                                            printf("%s tracked successfully!\n", exerciseName(newWorkout.exercise));
+                                        }
+                                    }
+                                }else{
+                                    if(picks==8){
+                                            int choice;
+                                        do {
+                                            printf("\n=== Unfinished Workouts ===\n");
+                                            WorkoutQueue *current = currentAccount->plannedFront;
+                                            if (!current) {
+                                                printf("No planned workouts!\n");
                                                 break;
                                             }
+                                            int pos = 1;
+                                            while (current) {
+                                                printf("%d. %s\n", pos++, exerciseName(current->exercise));
+                                                current = current->next;
+                                            }
+                                            printf("\nEnter 0 to finish viewing or...\nEnter an entry's number to delete: ");
+                                            if (scanf("%d", &choice) != 1) {
+                                                while (getchar() != '\n');
+                                                continue;
+                                            }
+                                            while (getchar() != '\n');
 
-                                            if (choice > 0 && choice <= pos-1) {
-                                                WorkoutQueue *target = nodes[choice-1];
-                                                Workout newWorkout;
-                                                newWorkout.exercise = target->exercise;
-
-                                                printf("Enter sets done: ");
-                                                scanf("%d", &newWorkout.sets);
-                                                getchar();
-
-                                                printf("Enter reps done: ");
-                                                scanf("%d", &newWorkout.reps);
-                                                getchar();
-
-                                                printf("Enter weight applied (kg): ");
-                                                scanf("%f", &newWorkout.weight);
-                                                getchar();
-
-                                                if (target == currentAccount->plannedFront) {
-                                                    currentAccount->plannedFront = target->next;
-                                                    if (!currentAccount->plannedFront) {
-                                                        currentAccount->plannedRear = NULL;
+                                            if (choice == 0) {
+                                                break;
+                                            } else if (choice > 0) {
+                                                WorkoutQueue *target = currentAccount->plannedFront;
+                                                WorkoutQueue *prev = NULL;
+                                                for (int i = 1; i < choice && target; i++) {
+                                                    prev = target;
+                                                    target = target->next;
+                                                }
+                                                if (target) {
+                                                    if (prev) {
+                                                        prev->next = target->next;
+                                                    } else {
+                                                        currentAccount->plannedFront = target->next;
                                                     }
-                                                } else {
-                                                    WorkoutQueue *prev = currentAccount->plannedFront;
-                                                    while (prev->next != target) {
-                                                        prev = prev->next;
-                                                    }
-                                                    prev->next = target->next;
-                                                    if (target == currentAccount->plannedRear) {
+                                                    if (!target->next) {
                                                         currentAccount->plannedRear = prev;
                                                     }
+                                                    free(target);
+                                                    saveAccounts(head);
+                                                    printf("Workout deleted successfully!\n");
                                                 }
-                                                free(target);
-                                                addWorkout(currentAccount, newWorkout);
-                                                updatePR(currentAccount, newWorkout);
-                                                saveAccounts(head);
-                                                printf("%s tracked successfully!\n", exerciseName(newWorkout.exercise));
                                             }
-                                        }
+                                        } while (1);
                                     }else{
-                                        if(picks==8){
-                                                int choice;
+                                        if(picks==9){
+                                            int choice;
                                             do {
                                                 printf("\n=== Unfinished Workouts ===\n");
                                                 WorkoutQueue *current = currentAccount->plannedFront;
@@ -1455,183 +1428,136 @@ int main(){
                                                     }
                                                 }
                                             } while (1);
+
                                         }else{
-                                            if(picks==9){
-                                                int choice;
-                                                do {
-                                                    printf("\n=== Unfinished Workouts ===\n");
-                                                    WorkoutQueue *current = currentAccount->plannedFront;
-                                                    if (!current) {
-                                                        printf("No planned workouts!\n");
-                                                        break;
+                                            if(picks==10){
+                                                    int leaderChoice;
+                                                showLeaderboardHeader("   THE GRAND FITNESS LEADERBOARDS");
+                                                printf("1. Top Total Workouts!!!\n");
+                                                printf("2. Top PR Records!!!\n");
+                                                printf("3. Return to Main Menu\n");
+                                                while (1) {
+                                                    printf("\nChoose leaderboard type: ");
+                                                    if (scanf("%d", &leaderChoice) == 1) {
+                                                        if (leaderChoice >= 1 && leaderChoice <= 3) break;
                                                     }
-                                                    int pos = 1;
+                                                    printf("Please enter a valid choice!\n");
+                                                    while (getchar() != '\n');
+                                                }
+                                                if (leaderChoice == 1) {
+                                                    FitnessChampion *champions = NULL;
+                                                    int champCount = 0;
+                                                    Account *current = head;
                                                     while (current) {
-                                                        printf("%d. %s\n", pos++, exerciseName(current->exercise));
+                                                        int total = 0;
+                                                        WorkoutHistory *wh = current->completedTop;
+                                                        while (wh) {
+                                                            total++;
+                                                            wh = wh->next;
+                                                        }
+                                                        if (total > 0) {
+                                                            champions = realloc(champions, (champCount + 1) * sizeof(FitnessChampion));
+                                                            strcpy(champions[champCount].username, current->username);
+                                                            champions[champCount].totalWorkouts = total;
+                                                            champCount++;
+                                                        }
                                                         current = current->next;
                                                     }
-                                                    printf("\nEnter 0 to finish viewing or...\nEnter an entry's number to delete: ");
-                                                    if (scanf("%d", &choice) != 1) {
-                                                        while (getchar() != '\n');
-                                                        continue;
-                                                    }
-                                                    while (getchar() != '\n');
 
-                                                    if (choice == 0) {
-                                                        break;
-                                                    } else if (choice > 0) {
-                                                        WorkoutQueue *target = currentAccount->plannedFront;
-                                                        WorkoutQueue *prev = NULL;
-                                                        for (int i = 1; i < choice && target; i++) {
-                                                            prev = target;
-                                                            target = target->next;
+                                                    if (champCount == 0) {
+                                                        showLeaderboardHeader("No Workouts Recorded Yet...");
+                                                        printf("Be the first to complete a workout!!!\n");
+                                                    } else {
+                                                        for (int i = 0; i < champCount - 1; i++) {
+                                                            for (int j = 0; j < champCount - i - 1; j++) {
+                                                                if (champions[j].totalWorkouts < champions[j+1].totalWorkouts) {
+                                                                    FitnessChampion temp = champions[j];
+                                                                    champions[j] = champions[j+1];
+                                                                    champions[j+1] = temp;
+                                                                }
+                                                            }
                                                         }
-                                                        if (target) {
-                                                            if (prev) {
-                                                                prev->next = target->next;
-                                                            } else {
-                                                                currentAccount->plannedFront = target->next;
-                                                            }
-                                                            if (!target->next) {
-                                                                currentAccount->plannedRear = prev;
-                                                            }
-                                                            free(target);
-                                                            saveAccounts(head);
-                                                            printf("Workout deleted successfully!\n");
+                                                        showLeaderboardHeader("Top 10 GOATs - Grinders of All Time!");
+                                                        printf("%-4s %-20s %-15s\n", "Rank", "Username", "Workouts Completed");
+                                                        for (int i = 0; i < (champCount > 10 ? 10 : champCount); i++) {
+                                                            printf("%-4d %-20s %-15d\n", i + 1, champions[i].username, champions[i].totalWorkouts);
                                                         }
                                                     }
-                                                } while (1);
-
-                                            }else{
-                                                if(picks==10){
-                                                        int leaderChoice;
-                                                    showLeaderboardHeader("   THE GRAND FITNESS LEADERBOARDS");
-                                                    printf("1. Top Total Workouts!!!\n");
-                                                    printf("2. Top PR Records!!!\n");
-                                                    printf("3. Return to Main Menu\n");
+                                                    free(champions);
+                                                } else if (leaderChoice == 2) {
+                                                    int exerciseChoice;
+                                                    showExerciseChoices();
                                                     while (1) {
-                                                        printf("\nChoose leaderboard type: ");
-                                                        if (scanf("%d", &leaderChoice) == 1) {
-                                                            if (leaderChoice >= 1 && leaderChoice <= 3) break;
+                                                        printf("\nYour choice: ");
+                                                        if (scanf("%d", &exerciseChoice) == 1) {
+                                                            if (exerciseChoice >= 1 && exerciseChoice <= 8) {
+                                                                break;
+                                                            }
                                                         }
                                                         printf("Please enter a valid choice!\n");
                                                         while (getchar() != '\n');
                                                     }
-                                                    if (leaderChoice == 1) {
-                                                        FitnessChampion *champions = NULL;
-                                                        int champCount = 0;
-                                                        Account *current = head;
-                                                        while (current) {
-                                                            int total = 0;
-                                                            WorkoutHistory *wh = current->completedTop;
-                                                            while (wh) {
-                                                                total++;
-                                                                wh = wh->next;
-                                                            }
-                                                            if (total > 0) {
-                                                                champions = realloc(champions, (champCount + 1) * sizeof(FitnessChampion));
-                                                                strcpy(champions[champCount].username, current->username);
-                                                                champions[champCount].totalWorkouts = total;
-                                                                champCount++;
-                                                            }
-                                                            current = current->next;
-                                                        }
-
-                                                        if (champCount == 0) {
-                                                            showLeaderboardHeader("No Workouts Recorded Yet...");
-                                                            printf("Be the first to complete a workout!!!\n");
-                                                        } else {
-                                                            for (int i = 0; i < champCount - 1; i++) {
-                                                                for (int j = 0; j < champCount - i - 1; j++) {
-                                                                    if (champions[j].totalWorkouts < champions[j+1].totalWorkouts) {
-                                                                        FitnessChampion temp = champions[j];
-                                                                        champions[j] = champions[j+1];
-                                                                        champions[j+1] = temp;
-                                                                    }
-                                                                }
-                                                            }
-                                                            showLeaderboardHeader("Top 10 GOATs - Grinders of All Time!");
-                                                            printf("%-4s %-20s %-15s\n", "Rank", "Username", "Workouts Completed");
-                                                            for (int i = 0; i < (champCount > 10 ? 10 : champCount); i++) {
-                                                                printf("%-4d %-20s %-15d\n", i + 1, champions[i].username, champions[i].totalWorkouts);
-                                                            }
-                                                        }
-                                                        free(champions);
-                                                    } else if (leaderChoice == 2) {
-                                                        int exerciseChoice;
-                                                        showExerciseChoices();
-                                                        while (1) {
-                                                            printf("\nYour choice: ");
-                                                            if (scanf("%d", &exerciseChoice) == 1) {
-                                                                if (exerciseChoice >= 1 && exerciseChoice <= 8) {
-                                                                    break;
-                                                                }
-                                                            }
-                                                            printf("Please enter a valid choice!\n");
-                                                            while (getchar() != '\n');
-                                                        }
-                                                        if (exerciseChoice == 8) {
-                                                            continue;
-                                                        }
-                                                        StrengthRecord *records = NULL;
-                                                        int recordCount = 0;
-                                                        ExerciseType targetExercise = benchPR + (exerciseChoice - 1);
-
-                                                        Account *current = head;
-                                                        while (current) {
-                                                            PR *pr = &current->personalRecords[exerciseChoice - 1];
-                                                            if (pr->maxWeight > 0 || pr->maxSets > 0 || pr->maxReps > 0) {
-                                                                records = realloc(records, (recordCount + 1) * sizeof(StrengthRecord));
-                                                                strcpy(records[recordCount].username, current->username);
-                                                                records[recordCount].bestWeight = pr->maxWeight;
-                                                                records[recordCount].bestSets = pr->maxSets;
-                                                                records[recordCount].bestReps = pr->maxReps;
-                                                                recordCount++;
-                                                            }
-                                                            current = current->next;
-                                                        }
-                                                        if (recordCount == 0) {
-                                                            showLeaderboardHeader("No Records Yet!");
-                                                            printf("This thing needs its first champion!\n");
-                                                        } else {
-                                                            for (int i = 0; i < recordCount - 1; i++) {
-                                                                for (int j = 0; j < recordCount - i - 1; j++) {
-                                                                    if (records[j].bestWeight < records[j+1].bestWeight || (records[j].bestWeight == records[j+1].bestWeight && records[j].bestSets < records[j+1].bestSets) || (records[j].bestWeight == records[j+1].bestWeight && records[j].bestSets == records[j+1].bestSets && records[j].bestReps < records[j+1].bestReps)) {
-                                                                        StrengthRecord temp = records[j];
-                                                                        records[j] = records[j+1];
-                                                                        records[j+1] = temp;
-                                                                    }
-                                                                }
-                                                            }
-                                                            showLeaderboardHeader(exerciseName(targetExercise));
-                                                            printf("%-4s %-20s %-8s %-6s %-6s\n", "Rank", "Username", "Weight", "Sets", "Reps");
-                                                            for (int i = 0; i < recordCount; i++) {
-                                                                printf("%-4d %-20s %-8.1f %-6d %-6d\n", i + 1, records[i].username, records[i].bestWeight, records[i].bestSets, records[i].bestReps);
-                                                            }
-                                                        }
-                                                        free(records);
+                                                    if (exerciseChoice == 8) {
+                                                        continue;
                                                     }
+                                                    StrengthRecord *records = NULL;
+                                                    int recordCount = 0;
+                                                    ExerciseType targetExercise = benchPR + (exerciseChoice - 1);
+
+                                                    Account *current = head;
+                                                    while (current) {
+                                                        PR *pr = &current->personalRecords[exerciseChoice - 1];
+                                                        if (pr->maxWeight > 0 || pr->maxSets > 0 || pr->maxReps > 0) {
+                                                            records = realloc(records, (recordCount + 1) * sizeof(StrengthRecord));
+                                                            strcpy(records[recordCount].username, current->username);
+                                                            records[recordCount].bestWeight = pr->maxWeight;
+                                                            records[recordCount].bestSets = pr->maxSets;
+                                                            records[recordCount].bestReps = pr->maxReps;
+                                                            recordCount++;
+                                                        }
+                                                        current = current->next;
+                                                    }
+                                                    if (recordCount == 0) {
+                                                        showLeaderboardHeader("No Records Yet!");
+                                                        printf("This thing needs its first champion!\n");
+                                                    } else {
+                                                        for (int i = 0; i < recordCount - 1; i++) {
+                                                            for (int j = 0; j < recordCount - i - 1; j++) {
+                                                                if (records[j].bestWeight < records[j+1].bestWeight || (records[j].bestWeight == records[j+1].bestWeight && records[j].bestSets < records[j+1].bestSets) || (records[j].bestWeight == records[j+1].bestWeight && records[j].bestSets == records[j+1].bestSets && records[j].bestReps < records[j+1].bestReps)) {
+                                                                    StrengthRecord temp = records[j];
+                                                                    records[j] = records[j+1];
+                                                                    records[j+1] = temp;
+                                                                }
+                                                            }
+                                                        }
+                                                        showLeaderboardHeader(exerciseName(targetExercise));
+                                                        printf("%-4s %-20s %-8s %-6s %-6s\n", "Rank", "Username", "Weight", "Sets", "Reps");
+                                                        for (int i = 0; i < recordCount; i++) {
+                                                            printf("%-4d %-20s %-8.1f %-6d %-6d\n", i + 1, records[i].username, records[i].bestWeight, records[i].bestSets, records[i].bestReps);
+                                                        }
+                                                    }
+                                                    free(records);
+                                                }
+
+                                            }else{
+                                                if(picks==11){
+                                                    booking(&kepala, &buntut, user);
+                                                    bookingfree(&kepala, &buntut);
 
                                                 }else{
-                                                    if(picks==11){
-                                                        booking(&kepala, &buntut, user);
+                                                    if(picks==12){
+                                                        bookcancel(&kepala, &buntut, user);
                                                         bookingfree(&kepala, &buntut);
-
                                                     }else{
-                                                        if(picks==12){
-                                                            bookcancel(&kepala, &buntut, user);
-                                                            bookingfree(&kepala, &buntut);
+                                                        if(picks==13){
+                                                            trainerMenu(user);
                                                         }else{
-                                                            if(picks==13){
-                                                                trainerMenu(user);
+                                                            if(picks==14){
+                                                                freeAccounts(head);
+                                                                printf("Program Exiting...");
+                                                                break;
                                                             }else{
-                                                                if(picks==14){
-                                                                    freeAccounts(head);
-                                                                    printf("Program Exiting...");
-                                                                    break;
-                                                                }else{
-                                                                    printf("Invalid input, please try again...\n\n");
-                                                                }
+                                                                printf("Invalid input, please try again...\n\n");
                                                             }
                                                         }
                                                     }
@@ -1647,4 +1573,5 @@ int main(){
             }
         }
     }
+    return 0;
 }
