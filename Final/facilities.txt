@@ -1,0 +1,15 @@
+Gym#A fully equipped strength and cardio training area#120
+Swimming Pool#Olympic-sized pool with temperature control#85
+Sauna#Relaxing steam sauna#60
+Yoga Room#Peaceful studio for yoga and meditation#45
+Boxing Ring#Ring and gear for boxing practice#30
+Cycling Studio#Indoor cycling with music and instructor#70
+Climbing Wall#Wall with routes for beginner to advanced#25
+Zumba Hall#Lively dance-based cardio classes#50
+Crossfit Area#Space for high-intensity training#40
+Pilates Room#Studio with equipment for Pilates#35
+HIIT Zone#Intense workouts for endurance and strength#55
+Treadmill Zone#Row of high-tech treadmills#90
+Weightlifting Room#Heavy-duty weights and benches#95
+Dance Studio#Spacious room with mirrors and sound system#65
+Functional Training#Area for ropes, sleds, and kettlebells#20

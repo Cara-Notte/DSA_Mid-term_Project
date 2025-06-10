@@ -1,0 +1,15 @@
+admin1#admin123
+superuser#securepass
+root_admin#root2024
+gymAdmin#fitlife
+staff_main#main999
+trainerHub#train123
+adminJames#jam567
+systemOp#sysop2024
+helpdesk#help456
+adminLina#lina789
+managerJoe#joeSecure
+adminOlive#olivePW
+backendOps#ops321
+dataAdmin#data789
+accessGrant#grantMe

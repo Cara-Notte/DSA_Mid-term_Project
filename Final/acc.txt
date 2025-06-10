@@ -1,0 +1,15 @@
+jdoe#pass123#15#3#1992#081234567890#jdoe@example.com#Jakarta
+amanda88#secret321#28#7#1988#089876543210#amanda88@mail.com#Bandung
+ronny_r#qwerty#1#1#2000#082133344455#ronny_r@domain.com#Surabaya
+samanthaK#pw321#30#12#1995#081234556677#samanthaK@webmail.com#Medan
+benjamin99#abc456#9#6#1989#083344556677#benjamin99@host.com#Denpasar
+clarissa#xyz789#14#2#1996#085566778899#clarissa@mail.id#Semarang
+wong_lee#mysecret#22#11#1991#081122334455#wong_lee@gmail.com#Makassar
+lilychen#openup#17#4#1998#089955443322#lilychen@ymail.com#Yogyakarta
+nathaniel#secureme#4#9#1985#081899977766#nathaniel@inbox.com#Bogor
+emilyrose#pass456#26#8#1997#083322114455#emilyrose@fastmail.com#Malang
+alex_yusuf#hidden123#12#5#1993#082233344411#alex_yusuf@mailhost.com#Bekasi
+monica#pa55w0rd#5#3#1987#081700899900#monica@netmail.com#Depok
+kevinH#k3v1n#21#10#1994#085533221100#kevinH@provider.com#Tangerang
+felicia#abc1234#8#6#1999#082144556677#felicia@eemail.com#Cirebon
+reza_f#r3z4a#29#7#2001#081222334466#reza_f@custommail.com#Palembang
